@@ -120,13 +120,13 @@ Retreives the status of a specific flight.
                         "cancel_percentage": 0.0
                     },
                     "realtime_status": {
+                        "source": "swim"    
+                         "last_updated": "2016-06-09T16:50:19Z",
                         "estimated_departure": "2016-06-09T16:50:00Z",
                         "estimated_departure_status": "actual",
                         "estimated_arrival": "2016-06-09T21:49:45Z",
                         "estimated_arrival_status": "estimated",
                         "cancelled": false,
-                        "last_updated": "2016-06-09T16:50:19Z",
-                        "source": "swim"
                     }
                 },
                 "incoming_confirmed": false
