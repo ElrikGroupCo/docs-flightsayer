@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Flight status
 
-Flightsayer's flights API allows consumers to view flight status for specific flights.
+Flightsayer's flights API allows consumers to view the flight status for specific flights.
 
 ## Retreive flight status [GET /flights/v1/status/{flight_id}]
 
