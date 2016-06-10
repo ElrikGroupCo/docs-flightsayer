@@ -42,15 +42,15 @@ Retreives the status of a specific flight.
             + estimated_arrival_status (RealtimeStatus, required)
             + cancelled (boolean, required) - true if the flight has been cancelled
             + last_updated (string, required) - time at which this real time status was most recently updated, in iso-8601 format
-            + source (enum[string], required) - either swim or flightview
+            + source (enum[string], required) - indicates source of the real time data. 
                 + Members
-                    + swim
-                    + flightview
+                    + `swim`
+                    + `flightview`
             + departure_terminal (string, optional)
             + departure_gate (string, optional)
             + baggage_claim (string, optional)
         + incoming_flight (FlightStatus, optional) - flight status for the incoming flight
-        + incoming_confirmed (boolean, required) - false if the incoming flight is a based on flightsayer's internal prediction, true if verified by airline
+        + incoming_confirmed (boolean, required) - true if the incoming flight id is the flight verified by the airline, false if its based on flightsayer's internal prediction
 
     + Body
 
