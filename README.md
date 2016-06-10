@@ -2,7 +2,11 @@ FORMAT: 1A
 
 # Flight status
 
-Flightsayer's flights API allows consumers to view the flight status for specific flights.
+Flightsayer's flights API allows consumers to view the flight status for specific flights. 
+
+The api lives at api.flightsayer.com, so to obtain flightstatus for flight UA576BOSSFO1606092145, do:
+curl -v http://api.flightsayer.com/flights/v1/status/BA5720SFODFW1606091908/ -H 'Authorization: Token <insert token>'
+
 
 ## Retreive flight status [GET /flights/v1/status/{flight_id}]
 
