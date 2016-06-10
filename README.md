@@ -1,6 +1,6 @@
 FORMAT: 1A
 
-# Flight status
+# Flightsayer Flights API
 
 Flightsayer's flights API allows consumers to view the flight status for specific flights. 
 
@@ -12,7 +12,6 @@ The api lives at api.flightsayer.com, so to obtain flightstatus for flight UA576
 
 curl -v http://api.flightsayer.com/flights/v1/status/BA5720SFODFW1606091908/ -H 'Authorization: Token <insert token>'
 ```
-
 
 ## Retreive flight status [GET /flights/v1/status/{flight_id}]
 
@@ -46,16 +45,13 @@ Retreives the status of a specific flight.
             + on_time_percentage (number, required) - percentage of time this flight has been on time over the samples
             + cancel_percentage (number, required) - percentage of time this flight has been cancelled over the samples
         + realtime_status (object, optional) - latest real time flight status
+            + source (RealtimeStatusSource, required) - indicates source of the real time data. 
+            + last_updated (string, required) - time at which this real time status was most recently updated, in iso-8601 FORMAT
             + estimated_departure (string, required) - estimated time of departure, in iso-8601 format
             + estimated_departure_status (RealtimeStatus, required)
             + estimated_arrival (string, required) - estimated time of arrival, in iso-8601 format
             + estimated_arrival_status (RealtimeStatus, required)
             + cancelled (boolean, required) - true if the flight has been cancelled
-            + last_updated (string, required) - time at which this real time status was most recently updated, in iso-8601 format
-            + source (enum[string], required) - indicates source of the real time data. 
-                + Members
-                    + `swim`
-                    + `flightview`
             + departure_terminal (string, optional)
             + departure_gate (string, optional)
             + baggage_claim (string, optional)
@@ -138,10 +134,18 @@ Retreives the status of a specific flight.
 
 # Data Structures
 
+## RealtimeStatusSource (enum[string])
+Indicates the source of the real time data
+### Members
++ `swim` - real time data comes from FAA's SWIM data service
++ `flightview` - real time data comes from Flightview
+
 ## RealtimeStatus (enum[string])
-Indicates the arrival or departure status of a flight
+Indicates the arrival or departure status of an estimated flight time
 ### Members 
-+ `estimated`
-+ `actual`
++ `scheduled` - estimated time has been scheduled, but not updated since
++ `estimated` - estimated time is based latest traffic and airline estimates
++ `actual` - flight has actually arrived or departed
+
 
 ## FlightStatus (object)
