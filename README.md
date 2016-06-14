@@ -140,20 +140,20 @@ Indicates the source of the real time data
 + `swim` - real time data comes from FAA's SWIM data service
 + `flightview` - real time data comes from Flightview
 
-## EstimatedArrivalStatus (enum[string])
-Indicates the arrival or departure status of an estimated flight time
-### Members 
-+ `scheduled` - originally scheduled arrival time
-+ `estimated` - arrival time is estimated based on latest traffic and airline estimates
-+ `actual` - actual arrival time
-
 ## EstimatedDepartureStatus (enum[string])
-Indicates the 
+The status associated with as estimated departure time
 ### Members
 + `scheduled` - originally scheduled departure time
 + `proposed` - the airline has proposed a change to the depature time, but faa has not yet accepted 
 + `estimated` - departure time is estimated based on latest traffic and airline estimates
 + `actual` - actual departure time
 
+
+## EstimatedArrivalStatus (enum[string])
+The status associated with as estimated arrival time
+### Members 
++ `scheduled` - originally scheduled arrival time
++ `estimated` - arrival time is estimated based on latest traffic and airline estimates
++ `actual` - actual arrival time
 
 ## FlightStatus (object)
