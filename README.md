@@ -48,9 +48,9 @@ Retreives the status of a specific flight.
             + source (RealtimeStatusSource, required) - indicates source of the real time data. 
             + last_updated (string, required) - time at which this real time status was most recently updated, in iso-8601 FORMAT
             + estimated_departure (string, required) - estimated time of departure, in iso-8601 format
-            + estimated_departure_status (RealtimeStatus, required)
+            + estimated_departure_status (EstimatedDepartureStatus, required)
             + estimated_arrival (string, required) - estimated time of arrival, in iso-8601 format
-            + estimated_arrival_status (RealtimeStatus, required)
+            + estimated_arrival_status (EstimatedArrivalStatus, required)
             + cancelled (boolean, required) - true if the flight has been cancelled
             + departure_terminal (string, optional)
             + departure_gate (string, optional)
@@ -140,12 +140,20 @@ Indicates the source of the real time data
 + `swim` - real time data comes from FAA's SWIM data service
 + `flightview` - real time data comes from Flightview
 
-## RealtimeStatus (enum[string])
+## EstimatedArrivalStatus (enum[string])
 Indicates the arrival or departure status of an estimated flight time
 ### Members 
-+ `scheduled` - estimated time has been scheduled, but not updated since
-+ `estimated` - estimated time is based latest traffic and airline estimates
-+ `actual` - flight has actually arrived or departed
++ `scheduled` - originally scheduled arrival time
++ `estimated` - arrival time is estimated based on latest traffic and airline estimates
++ `actual` - actual arrival time
+
+## EstimatedDepartureStatus (enum[string])
+Indicates the 
+### Members
++ `scheduled` - originally scheduled departure time
++ `proposed` - the airline has proposed a change to the depature time, but faa has not yet accepted 
++ `estimated` - departure time is estimated based on latest traffic and airline estimates
++ `actual` - actual departure time
 
 
 ## FlightStatus (object)
