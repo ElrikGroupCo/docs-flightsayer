@@ -10,15 +10,56 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 #!curl
 
 
-curl -v http://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040/ -H 'Authorization: Token <insert token>'
+curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040/ -H 'Authorization: Token <insert token>'
 ```
+
+## Retreive flight status for a filtered set of flights [GET /flights/v1/status{departure_airport,arrival_airport,min_scheduled_departure,max_scheduled_departure}]
+
+Retreives flight status for a filtered set of flights.
+
++ Parameters
+    + departure_airport: BOS (string, optional) - filters by departure airport
+    + arrival_airport: DEN (string, optional) - filters by arrival airport
+    + min_scheduled_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
+    + max_scheduled_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+
++ Response 200 (application/json)
+
+    + Attributes
+        + count (number, required) - number of flights matching the filter
+        + next (string, optional) - url pointing to the next set of paginated results
+        + previous (string, optional) - url pointing to the previous set of paginated results
+        + results (array[FlightStatus]) - an array of FlightStatus objects
+
+    + Body
+
+            {
+                "count": 297,
+                "next": "https://api.flightsayer.com/flights/v1/status/?limit=50&max_scheduled_departure=2016-06-24T18%3A30%3A00Z&min_scheduled_departure=2016-06-24T18%3A30%3A00Z&offset=50",
+                "previous": null,
+                "results": [
+                    {
+                        "id": "UA132DFWIAH1606241830",
+                        "flight_info": {
+                            "master_flight_id": "UA132DFWIAH1606241830",
+                            "carrier_code_iata": "UA",
+                            "flight_number": 132,
+                            "departure_airport": "DFW",
+                            "arrival_airport": "IAH",
+                            "scheduled_departure": "2016-06-24T18:30:00Z",
+                            "scheduled_arrival": "2016-06-24T19:42:00Z"
+                        },
+                        // plus 296 more FlightStatus results
+                    }
+                ]
+            }
 
 ## Retreive flight status [GET /flights/v1/status/{flight_id}]
 
 Retreives the status of a specific flight. 
 
 + Parameters
-    + flight_id: UA576BOSSFO1606092145 (required, string) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM>
+    + flight_id: UA576BOSSFO1606092145 (string, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM>
 
 + Response 200 (application/json)
 
@@ -30,8 +71,8 @@ Retreives the status of a specific flight.
             + flight_number (number, required) - flight number for this flight
             + departure_airport (string, required) - departure airport for this flight
             + arrival_airport (string, required) - arrival airport for this flight
-            + scheduled_departure (string, required) - scheduled departure time for this flight, in iso-8601 format
-            + scheduled_arrival (string, required) - scheduled arrival time for this flight, in iso-8601 format
+            + scheduled_departure (timestamp, required) - scheduled departure time for this flight
+            + scheduled_arrival (timestamp, required) - scheduled arrival time for this flight
         + departure_airport_weather (string, optional) - forecast weather at the destination airport at the scheduled time of departure
         + arrival_airport_weather (string, optional) - forecast weather at the arrival airport at the scheduled time of arrival
         + delay_prediction (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
@@ -46,10 +87,10 @@ Retreives the status of a specific flight.
             + cancel_percentage (number, required) - percentage of time this flight has been cancelled over the samples
         + realtime_status (object, optional) - latest real time flight status
             + source (RealtimeStatusSource, required) - indicates source of the real time data. 
-            + last_updated (string, required) - time at which this real time status was most recently updated, in iso-8601 FORMAT
-            + estimated_departure (string, required) - estimated time of departure, in iso-8601 format
+            + last_updated (timestamp, required) - time at which this real time status was most recently updated
+            + estimated_departure (timestamp, required) - estimated time of departure
             + estimated_departure_status (EstimatedDepartureStatus, required)
-            + estimated_arrival (string, required) - estimated time of arrival, in iso-8601 format
+            + estimated_arrival (timestamp, required) - estimated time of arrival
             + estimated_arrival_status (EstimatedArrivalStatus, required)
             + cancelled (boolean, required) - true if the flight has been cancelled
             + departure_terminal (string, optional)
@@ -86,13 +127,13 @@ Retreives the status of a specific flight.
                     "cancel_percentage": 0.0
                 },
                 "realtime_status": {
+                    "source": "swim"    
+                    "last_updated": "2016-06-09T20:13:53Z",
                     "estimated_departure": "2016-06-10T01:06:00Z",
                     "estimated_departure_status": "proposed",
                     "estimated_arrival": "2016-06-10T06:56:00Z",
                     "estimated_arrival_status": "estimated",
                     "cancelled": false,
-                    "last_updated": "2016-06-09T20:13:53Z",
-                    "source": "swim"
                 },
                 "incoming_flight": {
                     "id": "UA768SFOBOS1606091500",
@@ -121,7 +162,7 @@ Retreives the status of a specific flight.
                     },
                     "realtime_status": {
                         "source": "swim"    
-                         "last_updated": "2016-06-09T16:50:19Z",
+                        "last_updated": "2016-06-09T16:50:19Z",
                         "estimated_departure": "2016-06-09T16:50:00Z",
                         "estimated_departure_status": "actual",
                         "estimated_arrival": "2016-06-09T21:49:45Z",
@@ -134,11 +175,13 @@ Retreives the status of a specific flight.
 
 # Data Structures
 
+## timestamp (string)
+A timestamp in ISO-8601 format, for example: `2016-09-09T15:00:00Z`. All timestamps in the API are UTC time.
+
 ## RealtimeStatusSource (enum[string])
 Indicates the source of the real time data
 ### Members
 + `swim` - real time data comes from FAA's SWIM data service
-+ `flightview` - real time data comes from Flightview
 
 ## EstimatedDepartureStatus (enum[string])
 The status associated with as estimated departure time
