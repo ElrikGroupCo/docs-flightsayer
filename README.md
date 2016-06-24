@@ -13,15 +13,15 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040/ -H 'Authorization: Token <insert token>'
 ```
 
-## Retreive flight status for a filtered set of flights [GET /flights/v1/status{departure_airport,arrival_airport,min_scheduled_departure,max_scheduled_departure}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/status{departure_airport,arrival_airport,earliest_departure,latest_departure}]
 
-Retreives flight status for a filtered set of flights.
+Retrieves flight status for a filtered set of flights.
 
 + Parameters
     + departure_airport: BOS (string, optional) - filters by departure airport
     + arrival_airport: DEN (string, optional) - filters by arrival airport
-    + min_scheduled_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
-    + max_scheduled_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
+    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
 
 + Response 200 (application/json)
 
@@ -54,9 +54,9 @@ Retreives flight status for a filtered set of flights.
                 ]
             }
 
-## Retreive flight status [GET /flights/v1/status/{flight_id}]
+## Retrieve flight status [GET /flights/v1/status/{flight_id}]
 
-Retreives the status of a specific flight. 
+Retrieves the status of a specific flight. 
 
 + Parameters
     + flight_id: UA576BOSSFO1606092145 (string, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM>
@@ -161,7 +161,7 @@ Retreives the status of a specific flight.
                         "cancel_percentage": 0.0
                     },
                     "realtime_status": {
-                        "source": "swim"    
+                        "source": "swim",    
                         "last_updated": "2016-06-09T16:50:19Z",
                         "estimated_departure": "2016-06-09T16:50:00Z",
                         "estimated_departure_status": "actual",
