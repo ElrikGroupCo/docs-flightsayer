@@ -13,7 +13,7 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040/ -H 'Authorization: Token <insert token>'
 ```
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/status{departure_airport,arrival_airport,earliest_departure,latest_departure}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
 
 Retrieves flight status for a filtered set of flights.
 
@@ -35,7 +35,7 @@ Retrieves flight status for a filtered set of flights.
 
             {
                 "count": 297,
-                "next": "https://api.flightsayer.com/flights/v1/status/?limit=50&max_scheduled_departure=2016-06-24T18%3A30%3A00Z&min_scheduled_departure=2016-06-24T18%3A30%3A00Z&offset=50",
+                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
                 "previous": null,
                 "results": [
                     {
