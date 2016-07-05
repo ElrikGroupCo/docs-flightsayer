@@ -59,7 +59,7 @@ Retrieves flight status for a filtered set of flights.
 Retrieves the status of a specific flight. 
 
 + Parameters
-    + flight_id: UA576BOSSFO1606092145 (string, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM>
+    + flight_id: UA576BOSSFO1606092145 (string, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
 
 + Response 200 (application/json)
 
