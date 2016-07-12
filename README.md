@@ -178,7 +178,7 @@ Retrieves flight status for a filtered set of flights.
 
 # Subscriptions [/subscriptions]
 
-The subscriptions endpoint lists all flight status updates you are subscribed to, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL.
+The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL.
 
 ## Retrieve all subscriptions [GET /subscriptions/]
 Retrieve all current flight subscriptions
@@ -208,16 +208,17 @@ Retrieve all current flight subscriptions
                   ]
                 }
 
-## Create or update a subscription [PUT /subscriptions/{flight_id}]
-Create or update a subscription for the specified flight.
-
-+ Request
+## Subscriptions for a specific flight [/subscriptions/{flight_id}]
 
     + Parameters
         + flight_id: UA576BOSSFO1606092145 (FlightId, required)
 
-    + Attributes
-        + target: "http://status.concernedpassenger.com" (string, required) - the url to which POST requests indicating change to flight status will be sent.
+### Create or update a subscription for the specified flight [PUT /subscriptions/{flight_id}]
+
++ Request (application/json)
+
+     + Attributes
+        + target (string, required) - url to which POST requests indicating change to flight status will be sent.
 
     + Body
             {
@@ -225,11 +226,12 @@ Create or update a subscription for the specified flight.
             }
 
 + Response 201 (application/json)
-    New subscription created.
+New subscription created.
 
     + Attributes (FlightSubscription)
 
-    + Body 
+    + Body
+
             {
                 "flight_id": "WN2379SJCSAN1609282300",
                 "target": "http://test3.com",
@@ -237,23 +239,20 @@ Create or update a subscription for the specified flight.
                 "updated": "2016-07-12T19:29:34Z"
             }
 
-+ Response 200
-    Existing subscription updated
++ Response 200 (application/json)
+Existing subscription updated
 
     + Attributes (FlightSubscription)
 
-## Retreive a subscription [GET /subscriptions/{flight_id}]
+### Retrieve a subscription [GET /subscriptions/{flight_id}]
 Retrieve a subscription for the specified flight.
-
-+ Request
-    + Parameters
-        + flight_id: UA576BOSSFO1606092145 (FlightId, required)
 
 + Response 200 (application/json)
 
     + Attributes (FlightSubscription)
     
     + Body
+    
             {
                 "flight_id": "WN2379SJCSAN1609282300",
                 "target": "http://test3.com",
@@ -261,12 +260,9 @@ Retrieve a subscription for the specified flight.
                 "updated": "2016-07-12T19:29:34Z"
             }
 
-## Delete a subscription [DELETE /subscriptions/{flight_id}]
-Delete the subscription for the specified flight.
 
-+ Request
-    + Parameters
-        + flight_id: UA576BOSSFO1606092145 (FlightId, required)
+### Delete a subscription [DELETE /subscriptions/{flight_id}]
+Delete the subscription for the specified flight.
 
 + Response 204 (application/json)
 
@@ -303,7 +299,7 @@ The status associated with as estimated arrival time
 
 ## FlightSubscription (object)
 A subscription for flight status alerts
-### Members
+### Attributes
 + flight_id (FlightId, required) - flight ID such as UA1261ORDEWR1607080215
 + target (string, required) - target URL where updates to flight status are sent as a POST request
 + created (timestamp, required) - timestamp at which the subscription was created
