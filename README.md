@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status for specific flights. 
+Flightsayer's flights API allows consumers to view the flight status for specific flights and to subscribe to push notifications to track when flight status changes.
 
 The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K1037BOSSLK1606102040`, do:
 
@@ -12,47 +12,6 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040 -H 'Authorization: Token <insert token>'
 ```
-
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
-
-Retrieves flight status for a filtered set of flights.
-
-+ Parameters
-    + departure_airport: BOS (string, optional) - filters by departure airport
-    + arrival_airport: DEN (string, optional) - filters by arrival airport
-    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
-    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
-
-+ Response 200 (application/json)
-
-    + Attributes
-        + count (number, required) - number of flights matching the filter
-        + next (string, optional) - url pointing to the next set of paginated results
-        + previous (string, optional) - url pointing to the previous set of paginated results
-        + results (array[FlightStatus]) - an array of FlightStatus objects
-
-    + Body
-
-            {
-                "count": 297,
-                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
-                "previous": null,
-                "results": [
-                    {
-                        "id": "UA132DFWIAH1606241830",
-                        "flight_info": {
-                            "master_flight_id": "UA132DFWIAH1606241830",
-                            "carrier_code_iata": "UA",
-                            "flight_number": 132,
-                            "departure_airport": "DFW",
-                            "arrival_airport": "IAH",
-                            "scheduled_departure": "2016-06-24T18:30:00Z",
-                            "scheduled_arrival": "2016-06-24T19:42:00Z"
-                        },
-                        // plus 296 more FlightStatus results
-                    }
-                ]
-            }
 
 ## Retrieve flight status [GET /flights/v1/status/{flight_id}]
 
@@ -172,6 +131,49 @@ Retrieves the status of a specific flight.
                 },
                 "incoming_confirmed": false
             }
+
+
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
+
+Retrieves flight status for a filtered set of flights.
+
++ Parameters
+    + departure_airport: BOS (string, optional) - filters by departure airport
+    + arrival_airport: DEN (string, optional) - filters by arrival airport
+    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
+    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+
++ Response 200 (application/json)
+
+    + Attributes
+        + count (number, required) - number of flights matching the filter
+        + next (string, optional) - url pointing to the next set of paginated results
+        + previous (string, optional) - url pointing to the previous set of paginated results
+        + results (array[FlightStatus]) - an array of FlightStatus objects
+
+    + Body
+
+            {
+                "count": 297,
+                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
+                "previous": null,
+                "results": [
+                    {
+                        "id": "UA132DFWIAH1606241830",
+                        "flight_info": {
+                            "master_flight_id": "UA132DFWIAH1606241830",
+                            "carrier_code_iata": "UA",
+                            "flight_number": 132,
+                            "departure_airport": "DFW",
+                            "arrival_airport": "IAH",
+                            "scheduled_departure": "2016-06-24T18:30:00Z",
+                            "scheduled_arrival": "2016-06-24T19:42:00Z"
+                        },
+                        // plus 296 more FlightStatus results
+                    }
+                ]
+            }
+
 
 # Data Structures
 
