@@ -178,7 +178,7 @@ Retrieves flight status for a filtered set of flights.
 
 # Subscriptions [/subscriptions]
 
-The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL.
+The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL. Note that the flight subscription will be automatically deleted sometime after the final POST request is sent to the target URL (this occcurs after the flight lands or is cancelled).
 
 ## Retrieve all subscriptions [GET /subscriptions/]
 Retrieve all current flight subscriptions
@@ -208,7 +208,7 @@ Retrieve all current flight subscriptions
                   ]
                 }
 
-## Subscriptions for a specific flight [/subscriptions/{flight_id}]
+## Subscription for a specific flight [/subscriptions/{flight_id}]
 
     + Parameters
         + flight_id: UA576BOSSFO1606092145 (FlightId, required)
@@ -221,6 +221,7 @@ Retrieve all current flight subscriptions
         + target (string, required) - url to which POST requests indicating change to flight status will be sent.
 
     + Body
+
             {
                 "target": "http://status.concernedpassenger.com"
             }
