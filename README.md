@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status for specific flights. 
+Flightsayer's flights API allows consumers to view the flight status for specific flights and to subscribe to push notifications to track when flight status changes.
 
 The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K1037BOSSLK1606102040`, do:
 
@@ -12,61 +12,21 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040 -H 'Authorization: Token <insert token>'
 ```
-
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
-
-Retrieves flight status for a filtered set of flights.
-
-+ Parameters
-    + departure_airport: BOS (string, optional) - filters by departure airport
-    + arrival_airport: DEN (string, optional) - filters by arrival airport
-    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
-    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
-
-+ Response 200 (application/json)
-
-    + Attributes
-        + count (number, required) - number of flights matching the filter
-        + next (string, optional) - url pointing to the next set of paginated results
-        + previous (string, optional) - url pointing to the previous set of paginated results
-        + results (array[FlightStatus]) - an array of FlightStatus objects
-
-    + Body
-
-            {
-                "count": 297,
-                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
-                "previous": null,
-                "results": [
-                    {
-                        "id": "UA132DFWIAH1606241830",
-                        "flight_info": {
-                            "master_flight_id": "UA132DFWIAH1606241830",
-                            "carrier_code_iata": "UA",
-                            "flight_number": 132,
-                            "departure_airport": "DFW",
-                            "arrival_airport": "IAH",
-                            "scheduled_departure": "2016-06-24T18:30:00Z",
-                            "scheduled_arrival": "2016-06-24T19:42:00Z"
-                        },
-                        // plus 296 more FlightStatus results
-                    }
-                ]
-            }
+ 
 
 ## Retrieve flight status [GET /flights/v1/status/{flight_id}]
 
 Retrieves the status of a specific flight. 
 
 + Parameters
-    + flight_id: UA576BOSSFO1606092145 (string, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
+    + flight_id: UA576BOSSFO1606092145 (FlightId, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
 
 + Response 200 (application/json)
 
     + Attributes (FlightStatus)
-        + id (string, required) - flight id
+        + id (FlightId, required) - flight id
         + flight_info (object, required) - detailed information for a flight, and uniquely identifies a single leg
-            + master_flight_id (string, required) - flight id if the master flight. This is different from the flight id of the requested flight status object in the case of code shares.
+            + master_flight_id (FlightId, required) - flight id if the master flight. This is different from the flight id of the requested flight status object in the case of code shares.
             + carrier_code_iata (string, required) - the 2-character IATA air carrier code
             + flight_number (number, required) - flight number for this flight
             + departure_airport (string, required) - departure airport for this flight
@@ -173,7 +133,146 @@ Retrieves the status of a specific flight.
                 "incoming_confirmed": false
             }
 
+
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
+
+Retrieves flight status for a filtered set of flights.
+
++ Parameters
+    + departure_airport: BOS (string, optional) - filters by departure airport
+    + arrival_airport: DEN (string, optional) - filters by arrival airport
+    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
+    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+
++ Response 200 (application/json)
+
+    + Attributes
+        + count (number, required) - number of flights matching the filter
+        + next (string, optional) - url pointing to the next set of paginated results
+        + previous (string, optional) - url pointing to the previous set of paginated results
+        + results (array[FlightStatus]) - an array of FlightStatus objects
+
+    + Body
+
+            {
+                "count": 297,
+                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
+                "previous": null,
+                "results": [
+                    {
+                        "id": "UA132DFWIAH1606241830",
+                        "flight_info": {
+                            "master_flight_id": "UA132DFWIAH1606241830",
+                            "carrier_code_iata": "UA",
+                            "flight_number": 132,
+                            "departure_airport": "DFW",
+                            "arrival_airport": "IAH",
+                            "scheduled_departure": "2016-06-24T18:30:00Z",
+                            "scheduled_arrival": "2016-06-24T19:42:00Z"
+                        },
+                        // plus 296 more FlightStatus results
+                    }
+                ]
+            }
+
+
+# Subscriptions [/subscriptions]
+
+The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL. Note that the flight subscription will be automatically deleted sometime after the final POST request is sent to the target URL (this occcurs after the flight lands or is cancelled).
+
+## Retrieve all subscriptions [GET /subscriptions/]
+Retrieve all current flight subscriptions
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        + Attributes
+            + count (number, required) - number of flights matching the filter
+            + next (string, optional) - url pointing to the next set of paginated results
+            + previous (string, optional) - url pointing to the previous set of paginated results
+            + results (array[FlightSubscription]) - an array of FlightSubscription objects
+
+        + Body
+                {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": [
+                    {
+                      "flight_id": "UA1261ORDEWR1607080215",
+                      "target": "http://status.concernedpassenger.com",
+                      "created": "2016-07-11T21:54:22Z",
+                      "updated": "2016-07-11T21:54:22Z"
+                    }
+                  ]
+                }
+
+## Subscription for a specific flight [/subscriptions/{flight_id}]
+
+    + Parameters
+        + flight_id: UA576BOSSFO1606092145 (FlightId, required)
+
+### Create or update a subscription for the specified flight [PUT /subscriptions/{flight_id}]
+
++ Request (application/json)
+
+     + Attributes
+        + target (string, required) - url to which POST requests indicating change to flight status will be sent.
+
+    + Body
+
+            {
+                "target": "http://status.concernedpassenger.com"
+            }
+
++ Response 201 (application/json)
+New subscription created.
+
+    + Attributes (FlightSubscription)
+
+    + Body
+
+            {
+                "flight_id": "WN2379SJCSAN1609282300",
+                "target": "http://test3.com",
+                "created": "2016-07-12T19:26:23Z",
+                "updated": "2016-07-12T19:29:34Z"
+            }
+
++ Response 200 (application/json)
+Existing subscription updated
+
+    + Attributes (FlightSubscription)
+
+### Retrieve a subscription [GET /subscriptions/{flight_id}]
+Retrieve a subscription for the specified flight.
+
++ Response 200 (application/json)
+
+    + Attributes (FlightSubscription)
+    
+    + Body
+    
+            {
+                "flight_id": "WN2379SJCSAN1609282300",
+                "target": "http://test3.com",
+                "created": "2016-07-12T19:26:23Z",
+                "updated": "2016-07-12T19:29:34Z"
+            }
+
+
+### Delete a subscription [DELETE /subscriptions/{flight_id}]
+Delete the subscription for the specified flight.
+
++ Response 204 (application/json)
+
+
 # Data Structures
+
+## FlightId (string)
+A flight id uniquely represents a flight, and takes the form: <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>.
+For example: UA576BOSSFO1606092145
 
 ## timestamp (string)
 A timestamp in ISO-8601 format, for example: `2016-09-09T15:00:00Z`. All timestamps in the API are UTC time.
@@ -198,5 +297,13 @@ The status associated with as estimated arrival time
 + `scheduled` - originally scheduled arrival time
 + `estimated` - arrival time is estimated based on latest traffic and airline estimates
 + `actual` - actual arrival time
+
+## FlightSubscription (object)
+A subscription for flight status alerts
+### Attributes
++ flight_id (FlightId, required) - flight ID such as UA1261ORDEWR1607080215
++ target (string, required) - target URL where updates to flight status are sent as a POST request
++ created (timestamp, required) - timestamp at which the subscription was created
++ updated (timestamp, required) - timestamp at which the subscription was last updated
 
 ## FlightStatus (object)
