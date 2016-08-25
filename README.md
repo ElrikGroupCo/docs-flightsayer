@@ -13,6 +13,7 @@ The api lives at `api.flightsayer.com`, so to obtain flightstatus for flight `9K
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040 -H 'Authorization: Token <insert token>'
 ```
  
+ The documentation for the push version of the API can be found [here](flight_subscriptions.md)
 
 ## Retrieve flight status [GET /flights/v1/status/{flight_id}]
 
@@ -224,98 +225,6 @@ Retrieves flight status for a filtered set of flights.
             }
 
 
-# Subscriptions [/subscriptions]
-
-The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL. Note that the flight subscription will be automatically deleted sometime after the final POST request is sent to the target URL (this occcurs after the flight lands or is cancelled).
-
-## Retrieve all subscriptions [GET /subscriptions/]
-Retrieve all current flight subscriptions
-
-+ Request (application/json)
-
-+ Response 200 (application/json)
-
-        + Attributes
-            + count (number, required) - number of flights matching the filter
-            + next (string, optional) - url pointing to the next set of paginated results
-            + previous (string, optional) - url pointing to the previous set of paginated results
-            + results (array[FlightSubscription]) - an array of FlightSubscription objects
-
-        + Body
-                {
-                    "count": 1,
-                    "next": null,
-                    "previous": null,
-                    "results": [
-                    {
-                      "flight_id": "UA1261ORDEWR1607080215",
-                      "target": "http://status.concernedpassenger.com",
-                      "created": "2016-07-11T21:54:22Z",
-                      "updated": "2016-07-11T21:54:22Z"
-                    }
-                  ]
-                }
-
-## Subscription for a specific flight [/subscriptions/{flight_id}]
-
-    + Parameters
-        + flight_id: UA576BOSSFO1606092145 (FlightId, required)
-
-### Create or update a subscription for the specified flight [PUT /subscriptions/{flight_id}]
-
-+ Request (application/json)
-
-     + Attributes
-        + target (string, required) - url to which POST requests indicating change to flight status will be sent.
-
-    + Body
-
-            {
-                "target": "http://status.concernedpassenger.com"
-            }
-
-+ Response 201 (application/json)
-New subscription created.
-
-    + Attributes (FlightSubscription)
-
-    + Body
-
-            {
-                "flight_id": "WN2379SJCSAN1609282300",
-                "target": "http://test3.com",
-                "created": "2016-07-12T19:26:23Z",
-                "updated": "2016-07-12T19:29:34Z"
-            }
-
-+ Response 200 (application/json)
-Existing subscription updated
-
-    + Attributes (FlightSubscription)
-
-### Retrieve a subscription [GET /subscriptions/{flight_id}]
-Retrieve a subscription for the specified flight.
-
-+ Response 200 (application/json)
-
-    + Attributes (FlightSubscription)
-    
-    + Body
-    
-            {
-                "flight_id": "WN2379SJCSAN1609282300",
-                "target": "http://test3.com",
-                "created": "2016-07-12T19:26:23Z",
-                "updated": "2016-07-12T19:29:34Z"
-            }
-
-
-### Delete a subscription [DELETE /subscriptions/{flight_id}]
-Delete the subscription for the specified flight.
-
-+ Response 204 (application/json)
-
-
 # Data Structures
 
 ## FlightId (string)
@@ -351,13 +260,5 @@ The status associated with as estimated arrival time
 + `scheduled` - originally scheduled arrival time
 + `estimated` - arrival time is estimated based on latest traffic and airline estimates
 + `actual` - actual arrival time
-
-## FlightSubscription (object)
-A subscription for flight status alerts
-+ Attributes
-    + flight_id (FlightId, required) - flight ID such as UA1261ORDEWR1607080215
-    + target (string, required) - target URL where updates to flight status are sent as a POST request
-    + created (timestamp, required) - timestamp at which the subscription was created
-    + updated (timestamp, required) - timestamp at which the subscription was last updated
 
 ## FlightStatus (object)
