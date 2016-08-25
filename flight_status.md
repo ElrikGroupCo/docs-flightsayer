@@ -62,107 +62,46 @@ Retrieves the status of a specific flight.
 
     + Body
 
-          {
-            "flight": {
-              "id": "DL5267GTRATL1608252104",
-              "number": 5267,
-              "carrier": {
-                "iata": "DL",
-                "name": "Delta Air Lines"
-              },
-              "scheduled_departure": "2016-08-25T21:04:00-00:05",
-              "scheduled_arrival": "2016-08-25T22:19:00-00:04",
-              "origin": {
-                "iata": "GTR",
-                "city": "Columbus/W Point/Starkville",
-                "name": "Golden Triangle Rgnl"
-              },
-              "destination": {
-                "iata": "ATL",
-                "city": "Atlanta",
-                "name": "Hartsfield - Jackson Atlanta Intl"
-              }
-            },
-            "prediction": {
-              "delay_index": 2,
-              "distribution": [
-                0.8,
-                0.1,
-                0.1,
-                0
-              ]
-            },
-            "historical_performance": null,
-            "status": {
-              "departure": {
-                "scheduled": "2016-08-25T21:04:00-00:05",
-                "latest": "2016-08-25T21:08:00-00:05",
-                "type": "scheduled"
-              },
-              "arrival": {
-                "scheduled": "2016-08-25T22:19:00-00:04",
-                "latest": "2016-08-25T21:45:59-00:04",
-                "type": "scheduled"
-              },
-              "cancelled": false,
-              "source": "swim",
-              "last_updated": "2016-08-25T14:28:10Z"
-            },
-            "weather": {
-              "origin": {
-                "summary": "Drizzle",
-                "temperature": 96.31,
-                "precipitation": 0.38,
-                "hourly": true
-              },
-              "destination": {
-                "summary": "Mostly Cloudy",
-                "temperature": 90.86,
-                "precipitation": 0,
-                "hourly": true
-              }
-            },
-            "inbound": {
+            {
               "flight": {
-                "id": "DL5267ATLGTR1608251930",
+                "id": "DL5267GTRATL1608252104",
                 "number": 5267,
                 "carrier": {
                   "iata": "DL",
-                  "name": "Delta Air Lines",
-                  "friendly_name": "Delta"
+                  "name": "Delta Air Lines"
                 },
-                "scheduled_departure": "2016-08-25T19:30:00-00:04",
-                "scheduled_arrival": "2016-08-25T20:35:00-00:05",
+                "scheduled_departure": "2016-08-25T21:04:00-00:05",
+                "scheduled_arrival": "2016-08-25T22:19:00-00:04",
                 "origin": {
-                  "iata": "ATL",
-                  "city": "Atlanta",
-                  "name": "Hartsfield - Jackson Atlanta Intl"
-                },
-                "destination": {
                   "iata": "GTR",
                   "city": "Columbus/W Point/Starkville",
                   "name": "Golden Triangle Rgnl"
+                },
+                "destination": {
+                  "iata": "ATL",
+                  "city": "Atlanta",
+                  "name": "Hartsfield - Jackson Atlanta Intl"
                 }
               },
               "prediction": {
-                "delay_index": 1,
+                "delay_index": 2,
                 "distribution": [
-                  1,
-                  0,
-                  0,
+                  0.8,
+                  0.1,
+                  0.1,
                   0
                 ]
               },
               "historical_performance": null,
               "status": {
                 "departure": {
-                  "scheduled": "2016-08-25T19:30:00-00:04",
-                  "latest": "2016-08-25T19:37:00-00:04",
+                  "scheduled": "2016-08-25T21:04:00-00:05",
+                  "latest": "2016-08-25T21:08:00-00:05",
                   "type": "scheduled"
                 },
                 "arrival": {
-                  "scheduled": "2016-08-25T20:35:00-00:05",
-                  "latest": "2016-08-25T20:19:33-00:05",
+                  "scheduled": "2016-08-25T22:19:00-00:04",
+                  "latest": "2016-08-25T21:45:59-00:04",
                   "type": "scheduled"
                 },
                 "cancelled": false,
@@ -171,20 +110,81 @@ Retrieves the status of a specific flight.
               },
               "weather": {
                 "origin": {
-                  "summary": "Partly Cloudy",
-                  "temperature": 90.97,
-                  "precipitation": 0,
+                  "summary": "Drizzle",
+                  "temperature": 96.31,
+                  "precipitation": 0.38,
                   "hourly": true
                 },
                 "destination": {
-                  "summary": "Drizzle",
-                  "temperature": 97.06,
-                  "precipitation": 0.25,
+                  "summary": "Mostly Cloudy",
+                  "temperature": 90.86,
+                  "precipitation": 0,
                   "hourly": true
+                }
+              },
+              "inbound": {
+                "flight": {
+                  "id": "DL5267ATLGTR1608251930",
+                  "number": 5267,
+                  "carrier": {
+                    "iata": "DL",
+                    "name": "Delta Air Lines",
+                    "friendly_name": "Delta"
+                  },
+                  "scheduled_departure": "2016-08-25T19:30:00-00:04",
+                  "scheduled_arrival": "2016-08-25T20:35:00-00:05",
+                  "origin": {
+                    "iata": "ATL",
+                    "city": "Atlanta",
+                    "name": "Hartsfield - Jackson Atlanta Intl"
+                  },
+                  "destination": {
+                    "iata": "GTR",
+                    "city": "Columbus/W Point/Starkville",
+                    "name": "Golden Triangle Rgnl"
+                  }
+                },
+                "prediction": {
+                  "delay_index": 1,
+                  "distribution": [
+                    1,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                "historical_performance": null,
+                "status": {
+                  "departure": {
+                    "scheduled": "2016-08-25T19:30:00-00:04",
+                    "latest": "2016-08-25T19:37:00-00:04",
+                    "type": "scheduled"
+                  },
+                  "arrival": {
+                    "scheduled": "2016-08-25T20:35:00-00:05",
+                    "latest": "2016-08-25T20:19:33-00:05",
+                    "type": "scheduled"
+                  },
+                  "cancelled": false,
+                  "source": "swim",
+                  "last_updated": "2016-08-25T14:28:10Z"
+                },
+                "weather": {
+                  "origin": {
+                    "summary": "Partly Cloudy",
+                    "temperature": 90.97,
+                    "precipitation": 0,
+                    "hourly": true
+                  },
+                  "destination": {
+                    "summary": "Drizzle",
+                    "temperature": 97.06,
+                    "precipitation": 0.25,
+                    "hourly": true
+                  }
                 }
               }
             }
-          }
 
 ## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
 
