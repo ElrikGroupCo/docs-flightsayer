@@ -10,15 +10,18 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 #!curl
 
 
-curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040 -H 'Authorization: Token <insert token>'
+curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040?history=true&inbound=true -H 'Authorization: Token <insert token>'
 ```
 
-## Retrieve flight status [GET /flights/v1/status/{flight_id}]
+## Retrieve flight status [GET /flights/v1/status/:flight_id{weather,inbound,history}]
 
 Retrieves the status of a specific flight. 
 
 + Parameters
     + flight_id: UA576BOSSFO1606092145 (FlightId, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
+    + weather: true (boolean, optional) - set to true to include weather data (default is false)
+    + history: true (boolean, optional) - set to true to include historical_performance data (default is false)
+    + inbound: true (boolean, optional) - set to true to include inbound flight status, if available (default is false)
 
 + Response 200 (application/json)
 
@@ -41,11 +44,7 @@ Retrieves the status of a specific flight.
                 + delay_prediction[2] - probability of between 60 and 120 minutes of delay
                 + delay_prediction[3] - probability of 2+ hours of delay
             + reasons (array[string], required) - an array of reasons explaining the cause for the prediction. This is currently a natural language sentence.
-        + historical_performance (object, optional) - historical on-time data for flights similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
-            + samples (number, required) - number of times the flight was flown in the last n_months
-            + n_months (number, required) - number of months over which historical data has been collected
-            + on_time_percentage (number, required) - percentage of time this flight has been on time over the samples
-            + cancel_percentage (number, required) - percentage of time this flight has been cancelled over the samples
+        + historical_performance (HistoricalPerformance, optional) - historical on-time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
         + status (object, optional) - latest real time flight status
             + departure (object, required):
                 + scheduled(timestamp, required) - scheduled time of departure
@@ -58,6 +57,9 @@ Retrieves the status of a specific flight.
             + cancelled (boolean, required) - true if the flight has been cancelled
             + source (RealtimeStatusSource, required) - indicates source of the real time data. 
             + last_updated (timestamp, required) - time at which this real time status was most recently updated
+        + weather (object, optional) - weather information for the origin and destination airports.
+            + origin (WeatherForecast, required) - weather forecast at origin airport at time of departure, or on departure day (as available)
+            + destination (WeatherForecast, required) - weather forecast at destination airport at time of arrival, or on arrival day (whichever is available)
         + inbound (FlightStatus, optional) - flight status for the incoming flight
 
     + Body
@@ -238,6 +240,28 @@ Information about an airport
     + iata (string, required) - IATA airport code
     + city (string, required) - airport city name
     + name (string, required) - full airport name
+
+## HistoricalPerformance (object)
+Historical arrival performance of this flight (or flights that are similar) over the last 6o days.
+
++ Attributes
+
+    + arrival_delay (array[number], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. Each value represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival). The first value is 60 days ago and the last value in the array is yesterday. The following special numbers represent special cases:
+        + `10000` - no flight (flight was not on the schedule on this day)
+        + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
+        + `10002` - cancellation (flight was cancelled on this day)
+        + `10003` - diversion (flight was diverted on this day)
+    + last_updated (timestamp, required) - time at which arrival_delay was last updated
+
+## WeatherForecast (object)
+Weather forecast information at origin or destination airport
+
++ Attributes
+
+  + summary (string, required) - summary of weather conditions
+  + temperature(number or array[number], required) - temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day
+  + precipitation (number, required) - probability that it will rain
+  + hourly (boolean, required) - true if this object represents an hourly forecast, else it's a daily forecast
 
 ## RealtimeStatusSource (enum[string])
 Indicates the source of the real time data
