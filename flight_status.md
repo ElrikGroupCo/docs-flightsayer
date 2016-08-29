@@ -13,7 +13,7 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040?history=true&inbound=true -H 'Authorization: Token <insert token>'
 ```
 
-## Retrieve flight status [GET /flights/v1/status/:flight_id{weather,inbound,history}]
+## Retrieve flight status [GET /flights/v1/status/{flight_id?weather,inbound,history}]
 
 Retrieves the status of a specific flight. 
 
@@ -38,13 +38,19 @@ Retrieves the status of a specific flight.
             + destination (AirportInfo, required) - informnation about the departure airport
         + prediction (object, required) - predicted flight delay information
             + delay_index (number, required) - Flightsayer delay index: a value between 1 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed.
-            + prediction (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
-                + delay_prediction[0] - probability of less than 30 minutes of delay
-                + delay_prediction[1] - probabilitiy of between 30 and 60 minutes of delay
-                + delay_prediction[2] - probability of between 60 and 120 minutes of delay
-                + delay_prediction[3] - probability of 2+ hours of delay
-            + reasons (array[string], required) - an array of reasons explaining the cause for the prediction. This is currently a natural language sentence.
-        + historical_performance (HistoricalPerformance, optional) - historical on-time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
+            + distribution (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
+                + distribution[0] - probability of less than 30 minutes of delay
+                + distribution[1] - probabilitiy of between 30 and 60 minutes of delay
+                + distribution[2] - probability of between 60 and 120 minutes of delay
+                + distribution[3] - probability of 2+ hours of delay
+            + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
+        + historical_performance (object, optional) - historical on-time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
+                + arrival_delay (array[number], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. Each value represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival). The first value is 60 days ago and the last value in the array is yesterday. The following special numbers represent special cases:
+                  + `10000` - no flight (flight was not on the schedule on this day)
+                  + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
+                  + `10002` - cancellation (flight was cancelled on this day)
+                  + `10003` - diversion (flight was diverted on this day)
+                + last_updated (timestamp, required) - time at which arrival_delay was last updated. Note: Currently null for all cases, expect to go live shortly.
         + status (object, optional) - latest real time flight status
             + departure (object, required):
                 + scheduled(timestamp, required) - scheduled time of departure
@@ -66,129 +72,98 @@ Retrieves the status of a specific flight.
 
             {
               "flight": {
-                "id": "DL5267GTRATL1608252104",
-                "number": 5267,
+                "id": "AA2586ORDSFO1608292210",
+                "number": 2586,
                 "carrier": {
-                  "iata": "DL",
-                  "name": "Delta Air Lines"
+                  "iata": "AA",
+                  "name": "American Airlines"
                 },
-                "scheduled_departure": "2016-08-25T21:04:00-00:05",
-                "scheduled_arrival": "2016-08-25T22:19:00-00:04",
+                "scheduled_departure": "2016-08-29T22:10:00-00:05",
+                "scheduled_arrival": "2016-08-30T02:47:00-00:07",
                 "origin": {
-                  "iata": "GTR",
-                  "city": "Columbus/W Point/Starkville",
-                  "name": "Golden Triangle Rgnl"
+                  "iata": "ORD",
+                  "city": "Chicago",
+                  "name": "Chicago O'Hare Intl"
                 },
                 "destination": {
-                  "iata": "ATL",
-                  "city": "Atlanta",
-                  "name": "Hartsfield - Jackson Atlanta Intl"
+                  "iata": "SFO",
+                  "city": "San Francisco",
+                  "name": "San Francisco Intl"
                 }
               },
               "prediction": {
-                "delay_index": 2,
-                "distribution": [
-                  0.8,
-                  0.1,
-                  0.1,
-                  0
-                ]
+                "delay_index": 3,
+                "distribution": [0.7, 0.1, 0.1, 0.1],
+                "causes": ["arrival-airport-conditions", "late-incoming-flight"]
               },
-              "historical_performance": null,
+              "historical_performance": {
+                "arrival_delay": [26,14,-8,-19,-9,-27,10,61,101,14,-11,164,-3,-10,105,163,124,6,261,8,40,0,4,-16,-16,-15,-14,-10,-15,10002,87,-16,-19,-23,56,6,34,41,5,-7,-10,-5,13,-9,27,-26,-13,-1,-14,-14,42,0,131,74,-15,-11,1,1,-9,-13],
+                "last_updated": null
+              },
               "status": {
                 "departure": {
-                  "scheduled": "2016-08-25T21:04:00-00:05",
-                  "latest": "2016-08-25T21:08:00-00:05",
+                  "scheduled": "2016-08-29T22:10:00-00:05",
+                  "latest": "2016-08-29T22:13:00-00:05",
                   "type": "scheduled"
                 },
                 "arrival": {
-                  "scheduled": "2016-08-25T22:19:00-00:04",
-                  "latest": "2016-08-25T21:45:59-00:04",
+                  "scheduled": "2016-08-30T02:47:00-00:07",
+                  "latest": "2016-08-30T02:11:19-00:07",
                   "type": "scheduled"
                 },
                 "cancelled": false,
                 "source": "swim",
-                "last_updated": "2016-08-25T14:28:10Z"
-              },
-              "weather": {
-                "origin": {
-                  "summary": "Drizzle",
-                  "temperature": 96.31,
-                  "precipitation": 0.38,
-                  "hourly": true
-                },
-                "destination": {
-                  "summary": "Mostly Cloudy",
-                  "temperature": 90.86,
-                  "precipitation": 0,
-                  "hourly": true
-                }
+                "last_updated": "2016-08-28T22:10:43Z"
               },
               "inbound": {
                 "flight": {
-                  "id": "DL5267ATLGTR1608251930",
-                  "number": 5267,
+                  "id": "AA1409MSPORD1608291932",
+                  "number": 1409,
                   "carrier": {
-                    "iata": "DL",
-                    "name": "Delta Air Lines",
-                    "friendly_name": "Delta"
+                    "iata": "AA",
+                    "name": "American Airlines"
                   },
-                  "scheduled_departure": "2016-08-25T19:30:00-00:04",
-                  "scheduled_arrival": "2016-08-25T20:35:00-00:05",
+                  "scheduled_departure": "2016-08-29T19:32:00-00:05",
+                  "scheduled_arrival": "2016-08-29T21:00:00-00:05",
                   "origin": {
-                    "iata": "ATL",
-                    "city": "Atlanta",
-                    "name": "Hartsfield - Jackson Atlanta Intl"
+                    "iata": "MSP",
+                    "city": "Minneapolis",
+                    "name": "Minneapolis-St Paul Intl/Wold-Chamberlain"
                   },
                   "destination": {
-                    "iata": "GTR",
-                    "city": "Columbus/W Point/Starkville",
-                    "name": "Golden Triangle Rgnl"
+                    "iata": "ORD",
+                    "city": "Chicago",
+                    "name": "Chicago O'Hare Intl"
                   }
                 },
                 "prediction": {
-                  "delay_index": 1,
-                  "distribution": [
-                    1,
-                    0,
-                    0,
-                    0
-                  ]
+                  "delay_index": 3,
+                  "distribution": [0.7,0.1,0.1,0.1],
+                  "causes": ["arrival-airport-conditions"]
                 },
-                "historical_performance": null,
+                "historical_performance": {
+                  "arrival_delay": [10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,-9,19,6,-9,-7],
+                  "last_updated": null
+                },
                 "status": {
                   "departure": {
-                    "scheduled": "2016-08-25T19:30:00-00:04",
-                    "latest": "2016-08-25T19:37:00-00:04",
+                    "scheduled": "2016-08-29T19:32:00-00:05",
+                    "latest": "2016-08-29T19:41:00-00:05",
                     "type": "scheduled"
                   },
                   "arrival": {
-                    "scheduled": "2016-08-25T20:35:00-00:05",
-                    "latest": "2016-08-25T20:19:33-00:05",
+                    "scheduled": "2016-08-29T21:00:00-00:05",
+                    "latest": "2016-08-29T20:36:08-00:05",
                     "type": "scheduled"
                   },
                   "cancelled": false,
                   "source": "swim",
-                  "last_updated": "2016-08-25T14:28:10Z"
-                },
-                "weather": {
-                  "origin": {
-                    "summary": "Partly Cloudy",
-                    "temperature": 90.97,
-                    "precipitation": 0,
-                    "hourly": true
-                  },
-                  "destination": {
-                    "summary": "Drizzle",
-                    "temperature": 97.06,
-                    "precipitation": 0.25,
-                    "hourly": true
-                  }
+                  "last_updated": "2016-08-28T19:35:38Z"
                 }
               }
             }
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{departure_airport,arrival_airport,earliest_departure,latest_departure}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{?departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
 
 Retrieves flight status for a filtered set of flights.
 
@@ -197,6 +172,9 @@ Retrieves flight status for a filtered set of flights.
     + arrival_airport: DEN (string, optional) - filters by arrival airport
     + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
     + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+    + history: true (boolean, optional) - include historical_performance data in response (default is false)
+    + inbound: true (boolean, optional) - include inbound flight status in response, if available (default is false)
+    + weather: true (boolean, optional) - include weather data in response (default is false)
 
 + Response 200 (application/json)
 
@@ -241,17 +219,16 @@ Information about an airport
     + city (string, required) - airport city name
     + name (string, required) - full airport name
 
-## HistoricalPerformance (object)
-Historical arrival performance of this flight (or flights that are similar) over the last 6o days.
+## DelayCause (enum[string])
+A reason for the delay prediction. Note that a value of null means that the flight departure is too far out to have a specific cause for delay. Within ~24 hours, delay casues kick in. 
 
-+ Attributes
-
-    + arrival_delay (array[number], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. Each value represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival). The first value is 60 days ago and the last value in the array is yesterday. The following special numbers represent special cases:
-        + `10000` - no flight (flight was not on the schedule on this day)
-        + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
-        + `10002` - cancellation (flight was cancelled on this day)
-        + `10003` - diversion (flight was diverted on this day)
-    + last_updated (timestamp, required) - time at which arrival_delay was last updated
+### Members
++ `flight-cancelled` - cancellation source is either swim or flightview
++ `late-incoming-flight` - late inbound flight
++ `arrival-airport-conditions` - ground delay program (GDP) of ground stop (GS) at the scheduled arrival airport, or flight has a controlled time of arrival.
++ `arrival-airport-constraints` - arrival volume constraints: no GDP/GS but high volume (typically happens immediately after a GDP ends)
++ `departure-airport-constraints` - departure constraints: volume exceeds capacity
++ `latest-available-information` - based on latest swim or flightview ETA/ETD. This is a catch all of all airline delays like maintenance.
 
 ## WeatherForecast (object)
 Weather forecast information at origin or destination airport
