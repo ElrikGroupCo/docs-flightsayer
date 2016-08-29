@@ -1,6 +1,6 @@
 # Flightsayer API
 
-This is the documetation for Flightsayer's REST APIs. 
+This is the documentation for Flightsayer's REST APIs. 
 
 ## The flight status API documentation is [here](flight_status.md) ##
 
