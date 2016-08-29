@@ -13,7 +13,7 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040?history=true&inbound=true -H 'Authorization: Token <insert token>'
 ```
 
-## Retrieve flight status [GET /flights/v1/status/{flight_id?weather,inbound,history}]
+## Retrieve flight status [GET /flights/v1/status/{flight_id{?weather,inbound,history}]
 
 Retrieves the status of a specific flight. 
 
@@ -45,11 +45,7 @@ Retrieves the status of a specific flight.
                 + distribution[3] - probability of 2+ hours of delay
             + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
         + historical_performance (object, optional) - historical on-time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
-                + arrival_delay (array[number], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. Each value represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival). The first value is 60 days ago and the last value in the array is yesterday. The following special numbers represent special cases:
-                  + `10000` - no flight (flight was not on the schedule on this day)
-                  + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
-                  + `10002` - cancellation (flight was cancelled on this day)
-                  + `10003` - diversion (flight was diverted on this day)
+                + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
                 + last_updated (timestamp, required) - time at which arrival_delay was last updated. Note: Currently null for all cases, expect to go live shortly.
         + status (object, optional) - latest real time flight status
             + departure (object, required):
@@ -163,7 +159,7 @@ Retrieves the status of a specific flight.
               }
             }
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search{?departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/?{departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
 
 Retrieves flight status for a filtered set of flights.
 
@@ -229,6 +225,14 @@ A reason for the delay prediction. Note that a value of null means that the flig
 + `arrival-airport-constraints` - arrival volume constraints: no GDP/GS but high volume (typically happens immediately after a GDP ends)
 + `departure-airport-constraints` - departure constraints: volume exceeds capacity
 + `latest-available-information` - based on latest swim or flightview ETA/ETD. This is a catch all of all airline delays like maintenance.
+
+## HistoricalDelayValue (number)
+Represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival), with special cases in the 10000 range:
+
+    + `10000` - no flight (flight was not on the schedule on this day)
+    + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
+    + `10002` - cancellation (flight was cancelled on this day)
+    + `10003` - diversion (flight was diverted on this day)
 
 ## WeatherForecast (object)
 Weather forecast information at origin or destination airport
