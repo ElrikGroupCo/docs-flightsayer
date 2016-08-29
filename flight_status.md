@@ -235,10 +235,10 @@ Weather forecast information at origin or destination airport
 
 + Attributes
 
-  + summary (string, required) - summary of weather conditions
-  + temperature(number or array[number], required) - temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day
-  + precipitation (number, required) - probability that it will rain
-  + hourly (boolean, required) - true if this object represents an hourly forecast, else it's a daily forecast
+    + summary (string, required) - summary of weather conditions
+    + temperature(number or array[number], required) - temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day
+    + precipitation (number, required) - probability that it will rain
+    + hourly (boolean, required) - true if this object represents an hourly forecast, else it's a daily forecast
 
 ## RealtimeStatusSource (enum[string])
 Indicates the source of the real time data
