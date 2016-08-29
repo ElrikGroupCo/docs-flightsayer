@@ -13,15 +13,20 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040?history=true&inbound=true -H 'Authorization: Token <insert token>'
 ```
 
-## Retrieve flight status [GET /flights/v1/status/{flight_id{?weather,inbound,history}]
+## Retrieve flight status [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
 
 Retrieves the status of a specific flight. 
 
-+ Parameters
-    + flight_id: UA576BOSSFO1606092145 (FlightId, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
-    + weather: true (boolean, optional) - set to true to include weather data (default is false)
-    + history: true (boolean, optional) - set to true to include historical_performance data (default is false)
-    + inbound: true (boolean, optional) - set to true to include inbound flight status, if available (default is false)
++ Request
+    + Parameters
+        + flight_id: UA576BOSSFO1606092145 (FlightId, required) - flight id in the form of <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>
+        + weather: true (boolean, optional) - set to true to include weather data (default is false)
+        + history: true (boolean, optional) - set to true to include historical_performance data (default is false)
+        + inbound: true (boolean, optional) - set to true to include inbound flight status, if available (default is false)
+
+    + Headers
+
+            Authorization: Token sdfiux
 
 + Response 200 (application/json)
 
@@ -159,18 +164,24 @@ Retrieves the status of a specific flight.
               }
             }
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/?{departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/{?departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
 
 Retrieves flight status for a filtered set of flights.
 
-+ Parameters
-    + departure_airport: BOS (string, optional) - filters by departure airport
-    + arrival_airport: DEN (string, optional) - filters by arrival airport
-    + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
-    + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
-    + history: true (boolean, optional) - include historical_performance data in response (default is false)
-    + inbound: true (boolean, optional) - include inbound flight status in response, if available (default is false)
-    + weather: true (boolean, optional) - include weather data in response (default is false)
++ Request
+
+    + Parameters
+        + departure_airport: BOS (string, optional) - filters by departure airport
+        + arrival_airport: DEN (string, optional) - filters by arrival airport
+        + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
+        + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
+        + history: true (boolean, optional) - include historical_performance data in response (default is false)
+        + inbound: true (boolean, optional) - include inbound flight status in response, if available (default is false)
+        + weather: true (boolean, optional) - include weather data in response (default is false)
+
+    + Headers
+
+            Authorization: Token sdfiux
 
 + Response 200 (application/json)
 
@@ -229,10 +240,10 @@ A reason for the delay prediction. Note that a value of null means that the flig
 ## HistoricalDelayValue (number)
 Represents the number of minutes from the scheduled arrival time (negative number means an early arrival, positive means a late arrival), with special cases in the 10000 range:
 
-    + `10000` - no flight (flight was not on the schedule on this day)
-    + `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
-    + `10002` - cancellation (flight was cancelled on this day)
-    + `10003` - diversion (flight was diverted on this day)
+- `10000` - no flight (flight was not on the schedule on this day)
+- `10001` - no data (flight is in the schedule for this day, but arrival time data is missing)
+- `10002` - cancellation (flight was cancelled on this day)
+- `10003` - diversion (flight was diverted on this day)
 
 ## WeatherForecast (object)
 Weather forecast information at origin or destination airport
