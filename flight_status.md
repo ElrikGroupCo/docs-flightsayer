@@ -9,8 +9,7 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 ```
 #!curl
 
-
-curl -v https://api.flightsayer.com/flights/v1/status/9K1037BOSSLK1606102040?history=true&inbound=true -H 'Authorization: Token <insert token>'
+curl -i -H 'Authorization: Token <insert token>' https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true
 ```
 
 ## Retrieve flight status [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
