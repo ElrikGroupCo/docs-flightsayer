@@ -163,15 +163,15 @@ Retrieves the status of a specific flight.
               }
             }
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/{?departure_airport,arrival_airport,earliest_departure,latest_departure,history,inbound,weather}]
+## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/{?origin,destination,earliest_departure,latest_departure,history,inbound,weather}]
 
 Retrieves flight status for a filtered set of flights.
 
 + Request
 
     + Parameters
-        + departure_airport: BOS (string, optional) - filters by departure airport
-        + arrival_airport: DEN (string, optional) - filters by arrival airport
+        + origin: BOS (string, optional) - filters by departure airport
+        + destination: DEN (string, optional) - filters by arrival airport
         + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
         + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
         + history: true (boolean, optional) - include historical_performance data in response (default is false)
