@@ -75,7 +75,8 @@ Follow the development workflow for making your changes. You can verify changes 
 4. Follow the best practices to properly test and deploy `flightsayer-templates`
 
 ### Update `api-notifications` references (dev and production)
-Follow the best engineering practices for making modifications  
+Follow the best engineering practices for making modifications:
+
 1. Open `package.json` and locate the dependency for `@flightsayer/templater` in `api-notifications`
 2. Update the version to your published version 
 3. Follow the best practices to properly test and deploy `api-notifications`
