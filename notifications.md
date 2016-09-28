@@ -16,27 +16,27 @@ A collection of Liquid templated emails (and later SMS) messages. Contains code 
 Liquid-based templater with additional flightsayer provided data formatters. Used by *Notifications API* for notification formatting as well as *flightsayer-templates* for unit testing
 
 # Development Workflow
-Best engineering practices + workflows:
+Best engineering practices + workflows
 
 ## Best practices
-## Local testing
+### Local testing
 1. Always pull the latest version of the code from Bitbucket
 2. Create your own development branch (feature-*) `git branch new-feature`
 3. Add / remove features
 4. Run local validations and unit tests `npm test`
 
-## Deploy to development (staging)
+### Deploy to development (staging)
 1. Revision the package using `npm version major|minor|patch` according to Semantic Versioning
 2. Push changes to Bitbucket `git push`
 3. Ensure that the build succeeds. 
 4. Any additional steps (e.g. restart server, etc.) should be done here
 
-## Deploy to production
+### Deploy to production
 1. Submit a pull request for the feature branch and add a reviewer
 2. Once approved and merged, ensure the build succeeds for production
 3. Any additional steps (e.g. publish to NPM, restart server, etc.) should be done here
 
-## Add flightsayer NPM registry
+## flightsayer NPM registry
 You'll need flightsayer's private NPM registry in order to access/publish Notifications modules:
 
 - Add the registry:
