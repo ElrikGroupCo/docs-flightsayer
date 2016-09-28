@@ -3,16 +3,16 @@
 ## Overview
 flightsayer's notification systems are comprised of the following parts:
 
-### alerts-service (`alerts-service`)
+### alerts-service ([`alerts-service`](https://bitbucket.org/resilientops/alerts-service))
 A database listener for new notifications. On triggers, it pulls data from the flightsayer API and forwards the data to the Notifications API
 
-### Notifications API (`api-notifications`)
+### Notifications API ([`api-notifications`](https://bitbucket.org/resilientops/api-notifications))
 An HTTP web service for sending emails / SMS messages. Allows users to setup event handlers for different notifications. Uses the *email-templater* to inject data into notification templates specified by *flightsayer-templates*. A/B testing experiments can be setup here too.
 
-### flightsayer-templates (`@flightsayer/templates`)
+### flightsayer-templates ([`@flightsayer/templates`](https://bitbucket.org/resilientops/flightsayer-templates))
 A collection of Liquid templated emails (and later SMS) messages. Contains code to bootstrap default handlers on the *Notifications API*.
 
-### email-templater (`@flightsayer/email-templater`)
+### email-templater ([`@flightsayer/email-templater`](https://bitbucket.org/resilientops/email-templater))
 Liquid-based templater with additional flightsayer provided data formatters. Used by *Notifications API* for notification formatting as well as *flightsayer-templates* for unit testing
 
 # Development Workflow
