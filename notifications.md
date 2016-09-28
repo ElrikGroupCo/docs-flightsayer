@@ -19,7 +19,7 @@ Liquid-based templater with additional flightsayer provided data formatters. Use
 Best engineering practices + workflows:
 
 ## Best practices
-### Local testing
+## Local testing
 1. Always pull the latest version of the code from Bitbucket
 2. Create your own development branch (feature-*) `git branch new-feature`
 3. Add / remove features
