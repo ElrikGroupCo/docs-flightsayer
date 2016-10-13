@@ -2,9 +2,9 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status for specific flights.
+Flightsayer's flights API allows consumers to view the flight status for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
 
-The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for flight `9K1037BOSSLK1606102040`, do:
+To obtain flightstatus for a specific flight `9K1037BOSSLK1606102040`, do:
 
 ```
 #!curl
@@ -12,7 +12,37 @@ The api lives at `https://api.flightsayer.com`, so to obtain flightstatus for fl
 curl -i -H 'Authorization: Token <insert token>' https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true
 ```
 
-## Retrieve flight status [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
+to retreive flight status for a set of flights, use:
+
+```
+#!curl
+
+
+curl -v https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true -H 'Authorization: Token <insert token>'
+```
+
+If you would like to search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`:
+
+```
+#!curl
+
+
+curl -v https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-13T15:00Z&departing_before=2016-10-15T15:00Z&changed_after=2016-10-13T14:00Z -H 'Authorization: Token <insert token>'
+```
+
+And finally, to search for all flights departing in a one hour period between two timestamps:
+
+```
+#!curl
+
+
+curl -v https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z -H 'Authorization: Token <insert token>'
+```
+
+All details of are below.
+
+
+## Retrieve flight status for a specific flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
 
 Retrieves the status of a specific flight. 
 
@@ -163,7 +193,48 @@ Retrieves the status of a specific flight.
               }
             }
 
-## Retrieve flight status for a filtered set of flights [GET /flights/v1/search/{?origin,destination,earliest_departure,latest_departure,history,inbound,weather}]
++ Response 404 (application/json)
+  The most common cause of 404s is that the flight ID specified is not of the correct format, or has expired (flight has already landed).
+
+    + Attributes 
+        + status_code (number, required)
+        + error (string, required)
+
+    + Body
+    
+            {
+              "status_code": 404,
+              "error": "The resource was not found"
+            }
+
+
+## Retrieve flight status for a set of flights [GET //flights/v1/status{?flights,weather,inbound,history}]
+
++ Request
+
+    + Parameters
+        + flights: `AA3659DFWAEX1610101350,WN1936LASSFO1610131610` (string, required) - comma separated list of FlightIds
+        + weather: true (boolean, optional) - set to true to include weather data (default is false)
+        + history: true (boolean, optional) - set to true to include historical_performance data (default is false)
+        + inbound: true (boolean, optional) - set to true to include inbound flight status, if available (default is false)
+
+    + Headers
+
+            Authorization: Token sdfiux
+
++ Response 200 (application/json)
+
+    + array[FlightStatus] - returns flight info for each specified flight.
+
++ Response 400 (application/json)
+  The most common cause of 404s is that the flight ids specified are not of the correct format.
+
+    + Attributes 
+        + status_code (number, required)
+        + error (string, required)
+
+
+## Retrieve flight IDs that match a set of filters [GET /flights/v1/search/{?origin,destination,departing_after,departing_before,changed_after,changed_before}]
 
 Retrieves flight status for a filtered set of flights.
 
@@ -172,11 +243,10 @@ Retrieves flight status for a filtered set of flights.
     + Parameters
         + origin: BOS (string, optional) - filters by departure airport
         + destination: DEN (string, optional) - filters by arrival airport
-        + earliest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by minumum scheduled departure time (inclusive)
-        + latest_departure: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights by maximum scheduled departure time (inclusive)
-        + history: true (boolean, optional) - include historical_performance data in response (default is false)
-        + inbound: true (boolean, optional) - include inbound flight status in response, if available (default is false)
-        + weather: true (boolean, optional) - include weather data in response (default is false)
+        + departing_after: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart after the specified time (inclusive)
+        + departing_before: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart before the specified time(exclusive)
+        + changed_after: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed after the specified time (inclusive)
+        + changed_before: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed before the specified time (exclusive)
 
     + Headers
 
@@ -186,16 +256,12 @@ Retrieves flight status for a filtered set of flights.
 
     + Attributes
         + count (number, required) - number of flights matching the filter
-        + next (string, optional) - url pointing to the next set of paginated results
-        + previous (string, optional) - url pointing to the previous set of paginated results
         + results (array[FlightStatus]) - an array of FlightStatus objects
 
     + Body
 
             {
                 "count": 297,
-                "next": "https://api.flightsayer.com/flights/v1/search/?limit=50&earliest_departure=2016-06-24T18%3A30%3A00Z&latest_departure=2016-06-24T18%3A30%3A00Z&offset=50",
-                "previous": null,
                 "results": [
                     {
                         "flight": {
