@@ -4,42 +4,29 @@ FORMAT: 1A
 
 Flightsayer's flights API allows consumers to view the flight status for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
 
-To obtain flightstatus for a specific flight `9K1037BOSSLK1606102040`, do:
+
+1. To obtain flightstatus for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
+    * GET `https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true`
+2. To retreive flight status for a set of flights: 
+    * GET `https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true`
+3. To search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`: 
+    * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-13T15:00Z&departing_before=2016-10-15T15:00Z&changed_after=2016-10-13T14:00Z`
+This query will give you flight IDs of the relevant flights, and you can then use query `2` to retreive full flight status for (say) 100 of those at a time.
+4. To search for all flights departing in a one hour period between two timestamps: 
+    * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z`
+
+You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
 #!curl
 
-curl -i -H 'Authorization: Token <insert token>' https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true
+curl -i -H 'Authorization: Token <insert token>' \
+https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
-to retreive flight status for a set of flights, use:
+Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
 
-```
-#!curl
-
-
-curl -v https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true -H 'Authorization: Token <insert token>'
-```
-
-If you would like to search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`:
-
-```
-#!curl
-
-
-curl -v https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-13T15:00Z&departing_before=2016-10-15T15:00Z&changed_after=2016-10-13T14:00Z -H 'Authorization: Token <insert token>'
-```
-
-And finally, to search for all flights departing in a one hour period between two timestamps:
-
-```
-#!curl
-
-
-curl -v https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z -H 'Authorization: Token <insert token>'
-```
-
-All details of are below.
+All specific details of using this API are below. Contact `info@flightsayer.com` with any questions!
 
 
 ## Retrieve flight status for a specific flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
@@ -194,21 +181,21 @@ Retrieves the status of a specific flight.
             }
 
 + Response 404 (application/json)
-  The most common cause of 404s is that the flight ID specified is not of the correct format, or has expired (flight has already landed).
+The most common cause of 404s is that the flight ID specified is not of the correct format, or has expired (flight has already landed).
 
     + Attributes 
         + status_code (number, required)
         + error (string, required)
 
     + Body
-    
+
             {
               "status_code": 404,
               "error": "The resource was not found"
             }
 
 
-## Retrieve flight status for a set of flights [GET //flights/v1/status{?flights,weather,inbound,history}]
+## Retrieve flight status for a set of flights [GET /flights/v1/status{?flights,weather,inbound,history}]
 
 + Request
 
@@ -227,16 +214,16 @@ Retrieves the status of a specific flight.
     + array[FlightStatus] - returns flight info for each specified flight.
 
 + Response 400 (application/json)
-  The most common cause of 404s is that the flight ids specified are not of the correct format.
+The most common cause of 404s is that the flight ids specified are not of the correct format.
 
     + Attributes 
         + status_code (number, required)
         + error (string, required)
 
 
-## Retrieve flight IDs that match a set of filters [GET /flights/v1/search/{?origin,destination,departing_after,departing_before,changed_after,changed_before}]
+## Search flights [GET /flights/v1/search{?origin,destination,departing_after,departing_before,changed_after,changed_before}]
 
-Retrieves flight status for a filtered set of flights.
+Retrieves flight Ids that match a set of filters
 
 + Request
 
@@ -256,19 +243,19 @@ Retrieves flight status for a filtered set of flights.
 
     + Attributes
         + count (number, required) - number of flights matching the filter
-        + results (array[FlightStatus]) - an array of FlightStatus objects
+        + flights (array[FlightId]) - an array of FlightIds. Use the /status endpoints to obtain full status info for these.
 
     + Body
 
             {
-                "count": 297,
-                "results": [
-                    {
-                        "flight": {
-                            ...
-                        },
-                    },
-                    // plus 296 more FlightStatus results
+              "count": 2672,
+              "flights": [
+                "WS5135DFWLAS1610151400",
+                "AZ3101ATLJFK1610151430",
+                "VS4760ATLJFK1610151430",
+                "EK3030FAISEA1610151430",
+                "AA6800FAISEA1610151430",
+                ... // plus 2667 more flight ids
                 ]
             }
 
