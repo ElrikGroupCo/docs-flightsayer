@@ -5,23 +5,20 @@ FORMAT: 1A
 Flightsayer's flights API allows consumers to view the flight status for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
 
 
-1. To obtain flightstatus for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
+1. To obtain flight status for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
     * GET `https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true`
-2. To retreive flight status for a set of flights: 
+2. To retreive flight status for a set of flights (you can specify up to 250, but in this example we have 2): 
     * GET `https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true`
 3. To search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`: 
     * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-13T15:00Z&departing_before=2016-10-15T15:00Z&changed_after=2016-10-13T14:00Z`
-This query will give you flight IDs of the relevant flights, and you can then use query `2` to retreive full flight status for (say) 100 of those at a time.
+This query will give you flight IDs of the relevant flights, and you can then use query `2` to retreive full flight status for (say) 100 of those at a time. Note that you will receive codeshare flights in this result set.
 4. To search for all flights departing in a one hour period between two timestamps: 
     * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z`
 
 You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
-#!curl
-
-curl -i -H 'Authorization: Token <insert token>' \
-https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -i -H 'Authorization: Token <insert token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -29,9 +26,9 @@ Note that you'll need to replace the flight IDs and timestamps with valid values
 All specific details of using this API are below. Contact `info@flightsayer.com` with any questions!
 
 
-## Retrieve flight status for a specific flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
+## Retrieve flight status for a flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
 
-Retrieves the status of a specific flight. 
+Retrieves the status of a specific flight, optionally including historical performance, weather, and inbound flight information.
 
 + Request
     + Parameters
@@ -60,14 +57,14 @@ Retrieves the status of a specific flight.
         + prediction (object, required) - predicted flight delay information
             + delay_index (number, required) - Flightsayer delay index: a value between 1 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed.
             + distribution (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
-                + distribution[0] - probability of less than 30 minutes of delay
-                + distribution[1] - probabilitiy of between 30 and 60 minutes of delay
-                + distribution[2] - probability of between 60 and 120 minutes of delay
-                + distribution[3] - probability of 2+ hours of delay
+                + 0 - probability of less than 30 minutes of delay
+                + 1 - probabilitiy of between 30 and 60 minutes of delay
+                + 2 - probability of between 60 and 120 minutes of delay
+                + 3 - probability of 2+ hours of delay
             + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
-        + historical_performance (object, optional) - historical on-time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
-                + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
-                + last_updated (timestamp, required) - time at which arrival_delay was last updated. Note: Currently null for all cases, expect to go live shortly.
+        + historical_performance (object, optional) - historical on time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
+            + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
+            + last_updated (timestamp, required) - time at which arrival_delay was last updated.
         + status (object, optional) - latest real time flight status
             + departure (object, required):
                 + scheduled(timestamp, required) - scheduled time of departure
@@ -197,10 +194,12 @@ The most common cause of 404s is that the flight ID specified is not of the corr
 
 ## Retrieve flight status for a set of flights [GET /flights/v1/status{?flights,weather,inbound,history}]
 
+Retrieves flight status for upto 250 specific flights, optionally including historical performance, weather, and inbound flight information.
+
 + Request
 
     + Parameters
-        + flights: `AA3659DFWAEX1610101350,WN1936LASSFO1610131610` (string, required) - comma separated list of FlightIds
+        + flights: `AA3659DFWAEX1610101350,WN1936LASSFO1610131610` (string, required) - comma separated list of at most 250 FlightIds
         + weather: true (boolean, optional) - set to true to include weather data (default is false)
         + history: true (boolean, optional) - set to true to include historical_performance data (default is false)
         + inbound: true (boolean, optional) - set to true to include inbound flight status, if available (default is false)
@@ -214,16 +213,23 @@ The most common cause of 404s is that the flight ID specified is not of the corr
     + array[FlightStatus] - returns flight info for each specified flight.
 
 + Response 400 (application/json)
-The most common cause of 404s is that the flight ids specified are not of the correct format.
+The most common cause of 404s is that the flight Ids specified are not of the correct format.
 
     + Attributes 
         + status_code (number, required)
         + error (string, required)
+        
+    + Body
+
+        {
+          "status_code": 400
+          "error": "Bad request: <reason>"
+        }
 
 
 ## Search flights [GET /flights/v1/search{?origin,destination,departing_after,departing_before,changed_after,changed_before}]
 
-Retrieves flight Ids that match a set of filters
+Retrieves flight Ids that match a set of filters. Note that these results include codeshares, so you may receive more than one flight Id for effectively the same flight.
 
 + Request
 
@@ -263,8 +269,8 @@ Retrieves flight Ids that match a set of filters
 # Data Structures
 
 ## FlightId (string)
-A flight id uniquely represents a flight, and takes the form: <IATA carrier code><flight number><departure airport><arrival airport><scheduled departure time as YYMMDDHHMM in UTC time>.
-For example: UA576BOSSFO1606092145
+A flight id uniquely represents a flight, and takes the form: [IATA carrier code][flight number][departure airport][arrival airport][scheduled departure time as YYMMDDHHMM in UTC time].
+For example: `UA576BOSSFO1606092145`
 
 ## timestamp (string)
 A timestamp in ISO-8601 format, for example: `2016-09-09T15:00:00Z` or `2016-08-25T20:35:00-00:05`. Note that the time zone offset is included for timestamps representing an arrival or departure time, and the offset is the local time at the corresponding origin or destination airport.
