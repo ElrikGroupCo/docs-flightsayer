@@ -55,7 +55,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
             + origin (AirportInfo, required) - information about the origin airport
             + destination (AirportInfo, required) - informnation about the departure airport
         + prediction (object, required) - predicted flight delay information
-            + delay_index (number, required) - Flightsayer delay index: a value between 1 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed.
+            + delay_index (number, required) - Flightsayer delay index: a value between 0 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed, and values inbetween indicate increasing levels of delay are predicted. A value is 0 is a special value indicating that unusual events are affecting the flight, and we advise the flyer to check with their airline for further information. Examples of unusual events are an airport evacuation, airline computer glitch, or a gigantic hurricane. If the delay_index is 0, the `distribution` field should not be used.
             + distribution (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
                 + 0 - probability of less than 30 minutes of delay
                 + 1 - probabilitiy of between 30 and 60 minutes of delay
@@ -304,12 +304,13 @@ Represents the number of minutes from the scheduled arrival time (negative numbe
 - `10003` - diversion (flight was diverted on this day)
 
 ## WeatherForecast (object)
-Weather forecast information at origin or destination airport
+Weather forecast information at origin or destination airport. This forecast corresponds to the weather predicted at the departure or arrival time, respectively.
 
 + Attributes
 
+    + icon (enum[string], optional) - A summary of weather conditions, suitable for selecting in icon for display. If defined, this property will have one of the following values: `clear-day`, `clear-night`, `rain`, `snow`, `sleet`, `wind`, `fog`, `cloudy`, `partly-cloudy-day`, or `partly-cloudy-night`. Note that additional values such as thunderstorm or tornado may be defined in the future.
     + summary (string, required) - summary of weather conditions
-    + temperature(number or array[number], required) - temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day
+    + temperature(number or array[number], required) - temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day. Note that within about 48 hours out, hourly weather is available and the temperature will be a single value. Beyond this time window, only daily weather is available and the temperature is represented as an array of low/high values. Use the `hourly` field to determine what kind of temperature this is.
     + precipitation (number, required) - probability that it will rain
     + hourly (boolean, required) - true if this object represents an hourly forecast, else it's a daily forecast
 
