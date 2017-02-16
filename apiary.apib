@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status (including our delay predictions) for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
+Flightsayer's flights API allows consumers to view the predictive flight status for specific flights (including our delay predictions). Before we outline the API documentation, we start with a few examples of common queries that you may want to make.
 
 
 1. To obtain flight status for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
@@ -19,7 +19,7 @@ Flightsayer's flights API allows consumers to view the flight status (including 
 You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
-curl -i -H 'Authorization: Token <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -H 'Authorization: Token <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -29,7 +29,7 @@ All specific details of using this API are below. Contact `info@flightsayer.com`
 
 ## Retrieve flight status for a flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
 
-Retrieves the status of a specific flight, optionally including historical performance, weather, and inbound flight information.
+Retrieves the status of a specific flight, including delay prediction, and optionally including historical performance, weather, and inbound flight information.
 
 + Request
     + Parameters
@@ -197,7 +197,7 @@ The most common cause of 404s is that the flight ID specified is not of the corr
 
 ## Retrieve flight status for a set of flights [GET /flights/v1/status{?flights,weather,inbound,history}]
 
-Retrieves flight status for upto 250 specific flights, optionally including historical performance, weather, and inbound flight information.
+Retrieves flight status including delay prediction for upto 250 specific flights, optionally including historical performance, weather, and inbound flight information.
 
 + Request
 
@@ -232,7 +232,7 @@ The most common cause of 404s is that the flight Ids specified are not of the co
 
 ## Get alternative flights for a specific flight [GET /flights/v1/alternates/{flight_id}]
 
-Retreives alternates flights for the specified flight, sorted by increasing departure time. When the delay index is under 5, no alternates are available.
+Retrieves alternates flights for the specified flight, sorted by increasing departure time. When the delay index is under 5, no alternates are available.
   
   + Request
 
