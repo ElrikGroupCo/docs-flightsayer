@@ -56,7 +56,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
             + origin (AirportInfo, required) - information about the origin airport
             + destination (AirportInfo, required) - informnation about the departure airport
         + prediction (object, required) - predicted flight delay information
-            + delay_index (number, required) - Flightsayer delay index: a value between 0 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed, and values inbetween indicate increasing levels of delay are predicted. A value is 0 is a special value indicating that unusual events are affecting the flight, and we advise the flyer to check with their airline for further information. Examples of unusual events are an airport evacuation, airline computer glitch, or a gigantic hurricane. If the delay_index is 0, the `distribution` field should not be used.
+            + delay\_index (number, required) - Flightsayer delay index: a value between 0 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed, and values inbetween indicate increasing levels of delay are predicted. A value is 0 is a special value indicating that unusual events are affecting the flight, and we advise the flyer to check with their airline for further information. Examples of unusual events are an airport evacuation, airline computer glitch, or a gigantic hurricane. If the delay_index is 0, the `distribution` field should not be used.
             + distribution (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
                 + 0 - probability of less than 30 minutes of delay
                 + 1 - probabilitiy of between 30 and 60 minutes of delay
@@ -66,7 +66,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
             + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
         + historical_performance (object, optional) - historical on time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
             + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
-            + last_updated (timestamp, required) - time at which arrival_delay was last updated.
+            + last\_updated (timestamp, required) - time at which arrival_delay was last updated.
         + status (object, optional) - latest real time flight status
             + departure (object, required):
                 + scheduled(timestamp, required) - scheduled time of departure
@@ -213,7 +213,7 @@ Retrieves flight status for upto 250 specific flights, optionally including hist
 
 + Response 200 (application/json)
 
-    + array[FlightStatus] - returns flight info for each specified flight.
+        + array[FlightStatus] - returns flight info for each specified flight.
 
 + Response 400 (application/json)
 The most common cause of 404s is that the flight Ids specified are not of the correct format.
@@ -224,10 +224,10 @@ The most common cause of 404s is that the flight Ids specified are not of the co
         
     + Body
 
-        {
-          "status_code": 400
-          "error": "Bad request: <reason>"
-        }
+            {
+              "status_code": 400
+              "error": "Bad request: <reason>"
+            }
 
 
 ## Get alternative flights for a specific flight [GET /flights/v1/alternates/{flight_id}]
