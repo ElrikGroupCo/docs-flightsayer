@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status (including our delay predictions) for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
+Flightsayer's flights API allows consumers to view the predictive flight status for specific flights (including our delay predictions). Before we outline the API documentation, we start with a few examples of common queries that you may want to make.
 
 
 1. To obtain flight status for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
@@ -19,7 +19,7 @@ Flightsayer's flights API allows consumers to view the flight status (including 
 You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
-curl -i -H 'Token: <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -H 'Authorization: Token <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -29,7 +29,7 @@ All specific details of using this API are below. Contact `info@flightsayer.com`
 
 ## Retrieve flight status for a flight [GET /flights/v1/status/{flight_id}{?weather,inbound,history}]
 
-Retrieves the status of a specific flight, optionally including historical performance, weather, and inbound flight information.
+Retrieves the status of a specific flight, including delay prediction, and optionally including historical performance, weather, and inbound flight information.
 
 + Request
     + Parameters
@@ -40,7 +40,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
 
     + Headers
 
-            Token: <API token - request from info@flightsayer.com if you do not have one>
+            Authorization: Token sdfiux
 
 + Response 200 (application/json)
 
@@ -56,7 +56,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
             + origin (AirportInfo, required) - information about the origin airport
             + destination (AirportInfo, required) - informnation about the departure airport
         + prediction (object, required) - predicted flight delay information
-            + delay_index (number, required) - Flightsayer delay index: a value between 0 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed, and values inbetween indicate increasing levels of delay are predicted. A value is 0 is a special value indicating that unusual events are affecting the flight, and we advise the flyer to check with their airline for further information. Examples of unusual events are an airport evacuation, airline computer glitch, or a gigantic hurricane. If the delay_index is 0, the `distribution` field should not be used.
+            + delay_index (number, required) - Flightsayer delay index: a value between 0 and 10, representing a combination of the predicted delay. 1 means the flight is predicted to be ontime, and 10 means a flight is likely to be highly delayed, and values inbetween indicate increasing levels of delay are predicted. A value is 0 is a special value indicating that unusual events are affecting the flight, and we advise the flyer to check with their airline for further information. Examples of unusual events are an airport evacuation, airline computer glitch, or a gigantic hurricane. If the delay index is 0, the `distribution` field should not be used.
             + distribution (array[number], required) - flightsayer's prediction of delay for this flight, consisting of the following four probabilities:
                 + 0 - probability of less than 30 minutes of delay
                 + 1 - probabilitiy of between 30 and 60 minutes of delay
@@ -66,7 +66,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
             + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
         + historical_performance (object, optional) - historical on time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
             + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
-            + last_updated (timestamp, required) - time at which arrival_delay was last updated.
+            + last_updated (timestamp, required) - time at which arrival delay was last updated.
         + status (object, optional) - latest real time flight status
             + departure (object, required):
                 + scheduled(timestamp, required) - scheduled time of departure
@@ -197,7 +197,7 @@ The most common cause of 404s is that the flight ID specified is not of the corr
 
 ## Retrieve flight status for a set of flights [GET /flights/v1/status{?flights,weather,inbound,history}]
 
-Retrieves flight status for upto 250 specific flights, optionally including historical performance, weather, and inbound flight information.
+Retrieves flight status including delay prediction for upto 250 specific flights, optionally including historical performance, weather, and inbound flight information.
 
 + Request
 
@@ -209,11 +209,11 @@ Retrieves flight status for upto 250 specific flights, optionally including hist
 
     + Headers
 
-            Token: sdfiux
+            Authorization: Token sdfiux
 
 + Response 200 (application/json)
 
-    + array[FlightStatus] - returns flight info for each specified flight.
+        + array[FlightStatus] - returns flight info for each specified flight.
 
 + Response 400 (application/json)
 The most common cause of 404s is that the flight Ids specified are not of the correct format.
@@ -224,15 +224,15 @@ The most common cause of 404s is that the flight Ids specified are not of the co
         
     + Body
 
-        {
-          "status_code": 400
-          "error": "Bad request: <reason>"
-        }
+            {
+              "status_code": 400
+              "error": "Bad request: <reason>"
+            }
 
 
 ## Get alternative flights for a specific flight [GET /flights/v1/alternates/{flight_id}]
 
-Retreives alternates flights for the specified flight, sorted by increasing departure time. When the delay index is under 5, no alternates are available.
+Retrieves alternates flights for the specified flight, sorted by increasing departure time. When the delay index is under 5, no alternates are available.
   
   + Request
 
@@ -241,7 +241,7 @@ Retreives alternates flights for the specified flight, sorted by increasing depa
 
     + Headers
 
-            Token: <api token>
+            Authorization: Token <api token>
 
   + Response 200 (application/json)
 
@@ -284,7 +284,7 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
 
     + Headers
 
-            Token: sdfiux
+            Authorization: Token sdfiux
 
 + Response 200 (application/json)
 
