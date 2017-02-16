@@ -2,19 +2,24 @@ FORMAT: 1A
 
 # Flightsayer Flight Subscriptions API
 
-Flightsayer's flights API allows consumers to subscribe to push notifications to track when flight status changes.
+Flightsayer's flights API allows consumers to subscribe to push notifications so that they are automatically notified when flight status (including delay prediction) changes.
 
-The api lives at `api.flightsayer.com`. Check out the flight status API [here](README.md)
+The api lives at `https://api.flightsayer.com`. 
+
+Check out the pull version of the flight status API [here](flight_status.md)
  
- The documentation for the push version of the API can be found [here](flight_subscriptions_api.md)
 # Subscriptions [/subscriptions]
 
-The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL. Note that the flight subscription will be automatically deleted sometime after the final POST request is sent to the target URL (this occcurs after the flight lands or is cancelled).
+The subscriptions endpoint lists all flight status update subscriptions, and allows you to create, update, and delete subscriptions. When you subscribe to a flight status update, you will receive push notifications whenever the status of the flight in question changes, sent to a specified URL. Note that the flight subscription will be automatically deleted after the final POST request is sent to the target URL (this occcurs after the flight lands or is cancelled).
 
 ## Retrieve all subscriptions [GET /subscriptions/]
 Retrieve all current flight subscriptions
 
 + Request (application/json)
+
+    + Headers
+
+            Token: <API token>
 
 + Response 200 (application/json)
 
@@ -44,6 +49,10 @@ Retrieve all current flight subscriptions
     + Parameters
         + flight_id: UA576BOSSFO1606092145 (FlightId, required)
 
+    + Headers
+
+            Token: <api token>
+				
 ### Create or update a subscription for the specified flight [PUT /subscriptions/{flight_id}]
 
 + Request (application/json)
@@ -100,10 +109,15 @@ Delete the subscription for the specified flight.
 
 # Data Structures
 
+## FlightId (string)
+A flight id uniquely represents a flight, and takes the form: [IATA carrier code][flight number][departure airport][arrival airport][scheduled departure time as YYMMDDHHMM in UTC time].
+For example: `UA576BOSSFO1606092145`
+
 ## FlightSubscription (object)
 A subscription for flight status alerts
 + Attributes
-    + flight_id (FlightId, required) - flight ID such as UA1261ORDEWR1607080215
+    + flight_id (FlightId, required) - flight ID such as `UA1261ORDEWR1607080215`
     + target (string, required) - target URL where updates to flight status are sent as a POST request
     + created (timestamp, required) - timestamp at which the subscription was created
     + updated (timestamp, required) - timestamp at which the subscription was last updated
+    

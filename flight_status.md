@@ -2,23 +2,24 @@ FORMAT: 1A
 
 # Flightsayer Flights API
 
-Flightsayer's flights API allows consumers to view the flight status for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
+Flightsayer's flights API allows consumers to view the flight status (including our delay predictions) for specific flights. Before we outline the API documentation, we start with a few example of common queries that you may want to make.
 
 
 1. To obtain flight status for flight `WN55DALHOU1608310100` including historical performance and inbound flight info: 
     * GET `https://api.flightsayer.com/flights/v1/status/WN55DALHOU1608310100?history=true&inbound=true`
 2. To retreive flight status for a set of flights (you can specify up to 250, but in this example we have 2): 
-    * GET `https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true`
-3. To search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`: 
+    * GET `https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610`
+3. To retreive a set of alternate flights when a flight is likely to be delayed:
+    * GET `https://api.flightsayer.com/flights/v1/alternates/NK942TPAATL1608182310`
+4. To search for all flights that depart between now and two days from now, and whose delay predictions have changed in the last hour (assume it's currently `2016-10-13T15:00Z`: 
     * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-13T15:00Z&departing_before=2016-10-15T15:00Z&changed_after=2016-10-13T14:00Z`
-This query will give you flight IDs of the relevant flights, and you can then use query `2` to retreive full flight status for (say) 100 of those at a time. Note that you will receive codeshare flights in this result set.
-4. To search for all flights departing in a one hour period between two timestamps: 
+5. To search for all flights departing in a one hour period between two timestamps: 
     * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z`
 
 You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
-curl -i -H 'Authorization: Token <insert token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -i -H 'Token: <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -39,7 +40,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: <API token - request from info@flightsayer.com if you do not have one>
 
 + Response 200 (application/json)
 
@@ -61,6 +62,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
                 + 1 - probabilitiy of between 30 and 60 minutes of delay
                 + 2 - probability of between 60 and 120 minutes of delay
                 + 3 - probability of 2+ hours of delay
+            + risk (FlightsayerRisk, required) - description of risk represented by delay_index
             + causes (array[DelayCause], required) - an array of reasons explaining the cause for the prediction.
         + historical_performance (object, optional) - historical on time data for flights that are similar to this (same airline and flight number, same origin and destination, but the exact schedule departure time may vary by an hour).
             + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
@@ -108,6 +110,7 @@ Retrieves the status of a specific flight, optionally including historical perfo
               "prediction": {
                 "delay_index": 3,
                 "distribution": [0.7, 0.1, 0.1, 0.1],
+                "risk" : "LOW",
                 "causes": ["arrival-airport-conditions", "late-incoming-flight"]
               },
               "historical_performance": {
@@ -206,7 +209,7 @@ Retrieves flight status for upto 250 specific flights, optionally including hist
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: sdfiux
 
 + Response 200 (application/json)
 
@@ -227,7 +230,40 @@ The most common cause of 404s is that the flight Ids specified are not of the co
         }
 
 
-## Search flights [GET /flights/v1/search{?origin,destination,departing_after,departing_before,changed_after,changed_before}]
+## Get alternative flights for a specific flight [GET /flights/v1/alternates/{flight_id}]
+
+Retreives alternates flights for the specified flight, sorted by increasing departure time. When the delay index is under 5, no alternates are available.
+  
+  + Request
+
+    + Parameters
+      + flight_id: WN55DALHOU1608300100 (FlightId, required)
+
+    + Headers
+
+            Token: <api token>
+
+  + Response 200 (application/json)
+
+    + Attributes
+      + count (number, required) - number alternates returned
+      + flights (array[FlightStatus], required) - array of alternate flights. Flight status includes weather information, but not inbound flight or historical performance. Contact @diana to change what data is included.
+
+    + Body
+
+            {
+              "count": 6,
+              "flights": [
+                {
+                  "flight": {
+                    "id": "AA2258DFWIAH1608300120", ...
+                    } ...
+                } ...
+                ]
+            }
+
+
+## Search flights [GET /flights/v1/search{?origin,destination,date,carrier,flight_number,departing_after,departing_before,changed_after,changed_before,weather}]
 
 Retrieves flight Ids that match a set of filters. Note that these results include codeshares, so you may receive more than one flight Id for effectively the same flight.
 
@@ -236,32 +272,79 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
     + Parameters
         + origin: BOS (string, optional) - filters by departure airport
         + destination: DEN (string, optional) - filters by arrival airport
+        + nearby: true (string, optional) - includes nearby airports when `origin` or `destination` filters are specified
+        + date: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart on that date (Airport local time)
         + departing_after: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart after the specified time (inclusive)
         + departing_before: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart before the specified time(exclusive)
         + changed_after: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed after the specified time (inclusive)
         + changed_before: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed before the specified time (exclusive)
+        + carrier: UA (string, optional) - filters by carrier IATA code
+        + flight_number: 709 (number, optional) - filters by flight number
+        + weather: true (boolean, optional) - if true, includes weather data in with flight info
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: sdfiux
 
 + Response 200 (application/json)
 
     + Attributes
         + count (number, required) - number of flights matching the filter
-        + flights (array[FlightId]) - an array of FlightIds. Use the /status endpoints to obtain full status info for these.
+        + next (string) - url for next page of search results
+        + previous (string) - url for previous page of search results
+        + results (array[FlightStatus]) - an array of Flight Statuses. Returns full information regarding a flight
 
     + Body
 
             {
               "count": 2672,
-              "flights": [
-                "WS5135DFWLAS1610151400",
-                "AZ3101ATLJFK1610151430",
-                "VS4760ATLJFK1610151430",
-                "EK3030FAISEA1610151430",
-                "AA6800FAISEA1610151430",
-                ... // plus 2667 more flight ids
+              "next": "<url to next page>",
+              "previous: null,
+              "results": [
+                    {
+                        "flight": {
+                            "id": "AA2586ORDSFO1608292210",
+                            "number": 2586,
+                            "carrier": {
+                            "iata": "AA",
+                            "name": "American Airlines"
+                            },
+                            "scheduled_departure": "2016-08-29T22:10:00-00:05",
+                            "scheduled_arrival": "2016-08-30T02:47:00-00:07",
+                            "origin": {
+                            "iata": "ORD",
+                            "city": "Chicago",
+                            "name": "Chicago O'Hare Intl"
+                            },
+                            "destination": {
+                            "iata": "SFO",
+                            "city": "San Francisco",
+                            "name": "San Francisco Intl"
+                            }
+                        },
+                        "prediction": {
+                            "delay_index": 3,
+                            "distribution": [0.7, 0.1, 0.1, 0.1],
+                            "risk": "LOW",
+                            "causes": ["arrival-airport-conditions", "late-incoming-flight"]
+                        },
+                        "status": {
+                            "departure": {
+                            "scheduled": "2016-08-29T22:10:00-00:05",
+                            "latest": "2016-08-29T22:13:00-00:05",
+                            "type": "scheduled"
+                            },
+                            "arrival": {
+                            "scheduled": "2016-08-30T02:47:00-00:07",
+                            "latest": "2016-08-30T02:11:19-00:07",
+                            "type": "scheduled"
+                            },
+                            "cancelled": false,
+                            "source": "swim",
+                            "last_updated": "2016-08-28T22:10:43Z"
+                        }
+                    }
+                    // and 2671 more flights
                 ]
             }
 
@@ -332,6 +415,16 @@ The status associated with as estimated arrival time
 ### Members 
 + `scheduled` - originally scheduled arrival time
 + `estimated` - arrival time is estimated based on latest traffic and airline estimates
-+ `actual` - actual arrival time
++ `landed` - time at which flight has landed but not yet arrived at the gate
++ `actual` - actual arrival time - time at the gate
+
+## FlightsayerRisk (enum[string])
+A risk name associated with a delay index
+### Members
++ `LOW`
++ `MODERATE`
++ `HIGH`
++ `SEVERE`
++ `UNKNOWN` - associated with delay_score of 0, indicating a special circumstance
 
 ## FlightStatus (object)
