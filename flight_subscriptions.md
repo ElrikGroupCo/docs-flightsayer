@@ -19,7 +19,7 @@ Retrieve all current flight subscriptions
 
     + Headers
 
-            Token: <API token>
+            Token: thisisasampletoken
 
 + Response 200 (application/json)
 
@@ -51,7 +51,7 @@ Retrieve all current flight subscriptions
 
     + Headers
 
-            Token: <api token>
+            Token: thisisasampletoken
 				
 ### Create or update a subscription for the specified flight [PUT /subscriptions/{flight_id}]
 
