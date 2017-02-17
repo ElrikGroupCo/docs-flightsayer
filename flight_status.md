@@ -19,7 +19,7 @@ Flightsayer's flights API allows consumers to view the predictive flight status 
 You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
 
 ```
-curl -H 'Authorization: Token <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -H 'Token: <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -40,7 +40,7 @@ Retrieves the status of a specific flight, including delay prediction, and optio
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: <API token - request from info@flightsayer.com if you do not have one>
 
 + Response 200 (application/json)
 
@@ -209,7 +209,7 @@ Retrieves flight status including delay prediction for upto 250 specific flights
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: thisisasampletoken
 
 + Response 200 (application/json)
 
@@ -241,7 +241,7 @@ Retrieves alternates flights for the specified flight, sorted by increasing depa
 
     + Headers
 
-            Authorization: Token <api token>
+            Token: thisisasampletoken
 
   + Response 200 (application/json)
 
@@ -284,7 +284,7 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
 
     + Headers
 
-            Authorization: Token sdfiux
+            Token: thisisasampletoken
 
 + Response 200 (application/json)
 
