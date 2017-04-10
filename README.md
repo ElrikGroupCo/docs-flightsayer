@@ -5,8 +5,8 @@ This is the documentation for Flightsayer's APIs and services.
 ## API Documentation
 We have two version of our API:
 
-- Flight status API - see [documentation](flight_status.md)
-- Flight status subscription API - see [documentation](flight_subscriptions.md)
+- Flight status API - see [documentation](flight_status.md). Available in an easier-to-read format [here](http://docs.flightsayer.apiary.io/)
+- Flight status subscription API - see [documentation](flight_subscriptions.md) - this is the `push` version of the API.
 
 ## Contact
 
