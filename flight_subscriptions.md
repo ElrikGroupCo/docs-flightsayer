@@ -6,7 +6,16 @@ Flightsayer's flights API allows consumers to subscribe to push notifications so
 
 The api lives at `https://api.flightsayer.com`. 
 
-Check out the pull version of the flight status API [here](flight_status.md)
+### Quick start 
+To track flight United 1122 on 5/29/17 (flight id `UA1122DENBOS1705291425`) and receive push notifications at `http://target-url.com` (this is your server):
+```
+curl -X PUT -H 'Token: <api-token>' -H 'Content-Type: application/json' \
+    -d '{"target": "http://target-url.com"}' \
+    https://api.flightsayer.com/flights/v1/subscriptions/<FLIGHT_ID>/
+```
+where `api-token` is the API token you have been provided (contact `info@flightsayer.com` if you need an API token).
+
+### For info on Check out the pull version of the flight status API [here](flight_status.md)
  
 # Subscriptions [/subscriptions]
 
