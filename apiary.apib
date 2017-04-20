@@ -417,9 +417,9 @@ Weather forecast information at origin or destination airport. This forecast cor
 ## RealtimeStatusSource (enum[string])
 Indicates the source of the real time data. The default source of flight data is `flightview`. To obtain `swim` data, contact us at `info@flightsayer.com`.
 ### Members
-+ `flightview` (default) - real time data comes from [flightview's](http://www.flightview.com/) real time flight status feed
-+ `schedule` - status comes from the flight schedule - no real time data available
-+ `swim` - real time data comes from FAA's SWIM data service
++ `flightview` - real time data comes from [flightview's](http://www.flightview.com/) real time flight status feed. This is the default.
++ `schedule` - status comes from the flight schedule - no real time data available. This is commonly seen hours ahead of operations before real time data has kicked in.
++ `swim` - real time data comes from FAA's SWIM data service. Contact us if you're interested in SWIM data.
 
 ## FlightStatusText (enum[string])
 Indicates the latest real time status of the flight.
