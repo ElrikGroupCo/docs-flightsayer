@@ -16,10 +16,10 @@ Flightsayer's flights API allows consumers to view the predictive flight status 
 5. To search for all flights departing in a one hour period between two timestamps: 
     * GET `https://api.flightsayer.com/flights/v1/search?departing_after=2016-10-15T14:00Z&departing_before=2016-10-15T15:00Z`
 
-You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `2`):
+You can test any of these URLs out with the following curl command, making sure to include your API token in the request header (below we show option `1`):
 
 ```
-curl -H 'Token: <API token>' https://api.flightsayer.com/flights/v1/status?flights=AA3659DFWAEX1610101350,WN1936LASSFO1610131610&history=true&inbound=true
+curl -H 'Token: <API token>' https://api.flightsayer.com/flights/v1/status/AA3659DFWAEX1610101350&history=true&inbound=true
 ```
 
 Note that you'll need to replace the flight IDs and timestamps with valid values (flights expire from our API after they have landed).
@@ -68,14 +68,20 @@ Retrieves the status of a specific flight, including delay prediction, and optio
             + arrival_delay (array[HistoricalDelayValue], required) - An array of 60 values representing the historical arrival performance of this flight over the last 60 days. The first value is 60 days ago and the last value in the array is yesterday.
             + last_updated (timestamp, required) - time at which arrival delay was last updated.
         + status (object, optional) - latest real time flight status
-            + departure (object, required):
-                + scheduled(timestamp, required) - scheduled time of departure
-                + latest (timestamp, required) - latest estimated time of departure
-                + type (EstimatedDepartureStatus, required) - type of status represented by the latest estimate
-            + arrival (object, required):
-                + scheduled(timestamp, required) - scheduled time of arrival
-                + latest (timestamp, required) - latest estimated time of arrival
-                + type (EstimatedArrivalStatus, required) - type of status represented by the latest estimate
+            + text (FlightStatusText, required): description of current status of this flight
+            + departure (object, optional): departure status will be available unless flight is cancelled
+                + scheduled(timestamp, required) - originally scheduled time of departure
+                + latest (timestamp, required) - latest available time of departure
+                + type (StatusType, required) - type of status represented by the latest estimate
+                + terminal (string, optional) - terminal assignment at the departure airport
+                + gate (string, optional) - gate assignment at the departure airport
+            + arrival (object, optional): arrival status will be available unless flight is cancelled
+                + scheduled(timestamp, required) - originally scheduled time of arrival
+                + latest (timestamp, required) - latest available time of arrival
+                + type (StatusType, required) - type of status represented by the latest estimate
+                + terminal (string, optional) - terminal assignment at the arrival airport
+                + gate (string, optional) - gate assignment at the arrival airport
+                + baggage_claim (string, optional) - baggage claim assignment
             + cancelled (boolean, required) - true if the flight has been cancelled
             + source (RealtimeStatusSource, required) - indicates source of the real time data. 
             + last_updated (timestamp, required) - time at which this real time status was most recently updated
@@ -88,18 +94,18 @@ Retrieves the status of a specific flight, including delay prediction, and optio
 
             {
               "flight": {
-                "id": "AA2586ORDSFO1608292210",
-                "number": 2586,
+                "id": "VX865DENSFO1704201800",
+                "number": 865,
                 "carrier": {
-                  "iata": "AA",
-                  "name": "American Airlines"
+                  "iata": "VX",
+                  "name": "Virgin America"
                 },
-                "scheduled_departure": "2016-08-29T22:10:00-00:05",
-                "scheduled_arrival": "2016-08-30T02:47:00-00:07",
+                "scheduled_departure": "2017-04-20T12:00:00-06:00",
+                "scheduled_arrival": "2017-04-20T13:40:00-07:00",
                 "origin": {
-                  "iata": "ORD",
-                  "city": "Chicago",
-                  "name": "Chicago O'Hare Intl"
+                  "iata": "DEN",
+                  "city": "Denver",
+                  "name": "Denver Intl"
                 },
                 "destination": {
                   "iata": "SFO",
@@ -108,74 +114,58 @@ Retrieves the status of a specific flight, including delay prediction, and optio
                 }
               },
               "prediction": {
-                "delay_index": 3,
-                "distribution": [0.7, 0.1, 0.1, 0.1],
-                "risk" : "LOW",
-                "causes": ["arrival-airport-conditions", "late-incoming-flight"]
+                "delay_index": 1,
+                "distribution": [
+                  0.9,
+                  0.1,
+                  0,
+                  0
+                ],
+                "risk": "LOW",
+                "causes": [
+                  "arrival-airport-conditions"
+                ],
+                "last_changed": "2017-04-20T15:24:37.129Z"
               },
               "historical_performance": {
-                "arrival_delay": [26,14,-8,-19,-9,-27,10,61,101,14,-11,164,-3,-10,105,163,124,6,261,8,40,0,4,-16,-16,-15,-14,-10,-15,10002,87,-16,-19,-23,56,6,34,41,5,-7,-10,-5,13,-9,27,-26,-13,-1,-14,-14,42,0,131,74,-15,-11,1,1,-9,-13],
-                "last_updated": null
+                "arrival_delay": [-19,10002,10002,8,4,21,21,-8,2,8,-15,-5,-16,-14,3,10,29,77,57,-22,-3,-10,-23,-19,-27,-20,17,-15,-13,-10,46,78,16,72,10002,-4,5,-8,-18,-27,8,-8,-2,48,-10,-14,2,37,171,31,10000,23,-4,77,45,-8,-14,-9,22,73],
+                "last_updated": "2017-04-18T18:00:00Z"
               },
               "status": {
+                "text": "Scheduled",
                 "departure": {
-                  "scheduled": "2016-08-29T22:10:00-00:05",
-                  "latest": "2016-08-29T22:13:00-00:05",
-                  "type": "scheduled"
+                  "scheduled": "2017-04-20T12:00:00-06:00",
+                  "latest": "2017-04-20T12:00:00-06:00",
+                  "type": "scheduled",
+                  "terminal": "A",
+                  "gate": "A39"
                 },
                 "arrival": {
-                  "scheduled": "2016-08-30T02:47:00-00:07",
-                  "latest": "2016-08-30T02:11:19-00:07",
-                  "type": "scheduled"
+                  "scheduled": "2017-04-20T13:40:00-07:00",
+                  "latest": "2017-04-20T13:36:00-07:00",
+                  "type": "estimated",
+                  "terminal": "2",
+                  "gate": "50B",
+                  "baggage_claim": null
                 },
                 "cancelled": false,
-                "source": "swim",
-                "last_updated": "2016-08-28T22:10:43Z"
+                "source": "flightview",
+                "last_updated": "2017-04-20T16:15:00Z"
               },
-              "inbound": {
-                "flight": {
-                  "id": "AA1409MSPORD1608291932",
-                  "number": 1409,
-                  "carrier": {
-                    "iata": "AA",
-                    "name": "American Airlines"
-                  },
-                  "scheduled_departure": "2016-08-29T19:32:00-00:05",
-                  "scheduled_arrival": "2016-08-29T21:00:00-00:05",
-                  "origin": {
-                    "iata": "MSP",
-                    "city": "Minneapolis",
-                    "name": "Minneapolis-St Paul Intl/Wold-Chamberlain"
-                  },
-                  "destination": {
-                    "iata": "ORD",
-                    "city": "Chicago",
-                    "name": "Chicago O'Hare Intl"
-                  }
+              "weather": {
+                "origin": {
+                  "icon": "partly-cloudy-day",
+                  "summary": "Mostly Cloudy",
+                  "temperature": 62.88,
+                  "precipitation": 0,
+                  "hourly": true
                 },
-                "prediction": {
-                  "delay_index": 3,
-                  "distribution": [0.7,0.1,0.1,0.1],
-                  "causes": ["arrival-airport-conditions"]
-                },
-                "historical_performance": {
-                  "arrival_delay": [10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,-9,19,6,-9,-7],
-                  "last_updated": null
-                },
-                "status": {
-                  "departure": {
-                    "scheduled": "2016-08-29T19:32:00-00:05",
-                    "latest": "2016-08-29T19:41:00-00:05",
-                    "type": "scheduled"
-                  },
-                  "arrival": {
-                    "scheduled": "2016-08-29T21:00:00-00:05",
-                    "latest": "2016-08-29T20:36:08-00:05",
-                    "type": "scheduled"
-                  },
-                  "cancelled": false,
-                  "source": "swim",
-                  "last_updated": "2016-08-28T19:35:38Z"
+                "destination": {
+                  "icon": "partly-cloudy-day",
+                  "summary": "Partly Cloudy",
+                  "temperature": 67.36,
+                  "precipitation": 0,
+                  "hourly": true
                 }
               }
             }
@@ -369,7 +359,6 @@ Information about an airport
 
 ## DelayCause (enum[string])
 A reason for the delay prediction. Note that a value of null means that the flight departure is too far out to have a specific cause for delay. Within ~24 hours, delay casues kick in. 
-
 ### Members
 + `flight-cancelled` - cancellation source is either swim or flightview
 + `late-incoming-flight` - late inbound flight
@@ -398,25 +387,31 @@ Weather forecast information at origin or destination airport. This forecast cor
     + hourly (boolean, required) - true if this object represents an hourly forecast, else it's a daily forecast
 
 ## RealtimeStatusSource (enum[string])
-Indicates the source of the real time data
+Indicates the source of the real time data. The default source of flight data is `flightview`. To obtain `swim` data, contact us at `info@flightsayer.com`.
 ### Members
-+ `swim` - real time data comes from FAA's SWIM data service
++ `flightview` - real time data comes from [flightview's](http://www.flightview.com/) real time flight status feed. This is the default.
++ `schedule` - status comes from the flight schedule - no real time data available. This is commonly seen hours ahead of operations before real time data has kicked in.
++ `swim` - real time data comes from FAA's SWIM data service. Contact us if you're interested in SWIM data.
 
-## EstimatedDepartureStatus (enum[string])
-The status associated with as estimated departure time
+## FlightStatusText (enum[string])
+Indicates the latest real time status of the flight.
+### Members
++ `Scheduled` - flight is scheduled to depart, and no other real time data has been made available by the FAA or airline.
++ `Departed` - flight has left the departure gate, but has not taken off
++ `In Air` - flight is in the air (in many cases the wheels up time is delayed 5 minutes in accordance with FAA regulations.)
++ `Landed` - flight has landed
++ `Arrived` - flight has arrived at the arrival gate
++ `Expected` - the flight is expected to land at the arrival airport soon
++ `Delayed` - the flight has been delayed by the airline or the FAA.
++ `Cancelled` - the flight has been cancelled
++ `No Recent Info - Call Airline` - it is past the departure window for this flight, but there is no updated information.
+
+## StatusType (enum[string])
+The status associated with as estimated arrival or departure time
 ### Members
 + `scheduled` - originally scheduled departure time
-+ `proposed` - the airline has proposed a change to the depature time, but faa has not yet accepted 
 + `estimated` - departure time is estimated based on latest traffic and airline estimates
-+ `actual` - actual departure time
-
-## EstimatedArrivalStatus (enum[string])
-The status associated with as estimated arrival time
-### Members 
-+ `scheduled` - originally scheduled arrival time
-+ `estimated` - arrival time is estimated based on latest traffic and airline estimates
-+ `landed` - time at which flight has landed but not yet arrived at the gate
-+ `actual` - actual arrival time - time at the gate
++ `actual` - actual time (flight has already departed or arrived)
 
 ## FlightsayerRisk (enum[string])
 A risk name associated with a delay index
