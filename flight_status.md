@@ -263,7 +263,7 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
         + origin: BOS (string, optional) - filters by departure airport
         + destination: DEN (string, optional) - filters by arrival airport
         + nearby: true (string, optional) - includes nearby airports when `origin` or `destination` filters are specified
-        + date: 2016-06-24 (date, optional) - filters flights that depart on that date (Airport local time)
+        + date: 2016-06-24 (date, optional) - filter flights that depart on this date (departure airport local time)
         + departing_after: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart after the specified time (inclusive)
         + departing_before: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart before the specified time(exclusive)
         + changed_after: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed after the specified time (inclusive)
