@@ -10,7 +10,7 @@ The api lives at `https://api.flightsayer.com/flights/v1`.
 To track flight United 1122 on 5/29/17 (flight id `UA1122DENBOS1705291425`) and receive push notifications at `http://target-url.com` (this is your server):
 ```
 curl -X POST -H 'Token: <api-token>' -H 'Content-Type: application/json' \
-    -d '{"flight_ids": ["UA1122DENBOS1705291425"], target": "http://target-url.com"}' \
+    -d '{"flight_ids": ["UA1122DENBOS1705291425"], "target": "http://target-url.com"}' \
     https://api.flightsayer.com/flights/v1/subscriptions/
 ```
 where `api-token` is the API token you have been provided (contact `info@flightsayer.com` if you need an API token).
