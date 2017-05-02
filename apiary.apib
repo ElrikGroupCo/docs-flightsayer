@@ -462,7 +462,8 @@ For example: `UA576BOSSFO1606092145`
 ## FlightSubscription (object)
 A subscription for flight status alerts
 + Attributes
-    + flight_id (FlightId, required) - flight ID such as `UA1261ORDEWR1607080215`
+    + itinerary_id (string, required) - uuid such as `cabb3527-3c77-488e-8306-f8bf38a904ef` identifying the itinerary
+    + flight_ids (array[FlightId], required) - array of flight IDs representing the flights in this itinerary
     + target (string, required) - target URL where updates to flight status are sent as a POST request
     + created (timestamp, required) - timestamp at which the subscription was created
     + updated (timestamp, required) - timestamp at which the subscription was last updated
