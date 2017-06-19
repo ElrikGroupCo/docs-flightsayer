@@ -58,8 +58,7 @@ Retrieve all current flight subscriptions
                 }
 
 ### Create a subscription for the specified itinerary [POST /subscriptions/]
-To subscribe to push notifications for an itinerary, first obtain valid flight IDs for the flight and a target URL. Check out `FlightStatusUpdate` 
-in the `Data Structures` section for information about what the data you will then receive via callback.
+To subscribe to push notifications for an itinerary, first obtain valid flight IDs for the flight and a target URL. Check out `FlightStatusUpdate` in the `Data Structures` section for information about what the data you will then receive via callback.
 
 + Request (application/json)
 
@@ -138,8 +137,6 @@ Delete the subscription for the specified itinerary.
             Token: thisisasampletoken
             
 + Response 204 (application/json)
-
-# Data Structures
 
 # Data Structures
 
