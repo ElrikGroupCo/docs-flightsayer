@@ -82,6 +82,8 @@ Retrieves the status of a specific flight, including delay prediction, and optio
                 + terminal (string, optional) - terminal assignment at the arrival airport
                 + gate (string, optional) - gate assignment at the arrival airport
                 + baggage_claim (string, optional) - baggage claim assignment
+            + diversion (object, optional): included if this flight has been diverted
+                + airport (string, optional): IATA airport code for the diversion airport
             + cancelled (boolean, required) - true if the flight has been cancelled
             + source (RealtimeStatusSource, required) - indicates source of the real time data. 
             + last_updated (timestamp, required) - time at which this real time status was most recently updated
@@ -404,6 +406,7 @@ Indicates the latest real time status of the flight.
 + `Expected` - the flight is expected to land at the arrival airport soon
 + `Delayed` - the flight has been delayed by the airline or the FAA.
 + `Cancelled` - the flight has been cancelled
++ `Diverted` - the flight has been diverted
 + `No Recent Info - Call Airline` - it is past the departure window for this flight, but there is no updated information.
 
 ## StatusType (enum[string])
