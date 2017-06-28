@@ -198,6 +198,8 @@ When subscribed to an itinerary, this is the format received at the call back UR
             + gate: `D09` (string, optional) - gate assignment at the arrival airport
             + baggage_claim: `1` (string, optional) - baggage claim assignment. null means not yet available.
         + cancelled: `false` (boolean, required) - true if the flight has been cancelled
+        + diversion (object, optional): included if this flight has been diverted
+            + airport (string, optional): IATA airport code for the diversion airport
         + source: `flightiew` (RealtimeStatusSource, required) - indicates source of the real time data. 
         + last_updated: `2017-05-08T19:30:00Z` (timestamp, required) - time at which this real time status was most recently updated
     + weather (object, optional) - weather information for the origin and destination airports.
@@ -272,6 +274,7 @@ Indicates the latest real time status of the flight.
 + `Expected` - the flight is expected to land at the arrival airport soon
 + `Delayed` - the flight has been delayed by the airline or the FAA.
 + `Cancelled` - the flight has been cancelled
++ `Diverted` - the flight has been diverted
 + `No Recent Info - Call Airline` - it is past the departure window for this flight, but there is no updated information.
 
 ## StatusType (enum[string])
