@@ -128,6 +128,7 @@ Retrieves the status of a specific flight, including delay prediction, and optio
                 "causes": [
                   "arrival-airport-conditions"
                 ],
+                "is_override": false,
                 "last_changed": "2017-04-20T15:24:37.129Z"
               },
               "historical_performance": {
@@ -319,7 +320,8 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
                             "delay_index": 3,
                             "distribution": [0.7, 0.1, 0.1, 0.1],
                             "risk": "LOW",
-                            "causes": ["arrival-airport-conditions", "late-incoming-flight"]
+                            "causes": ["arrival-airport-conditions", "late-incoming-flight"],
+                            "is_override": false
                         },
                         "status": {
                             "departure": {
