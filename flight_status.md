@@ -257,9 +257,9 @@ Retrieves alternates flights for the specified flight, sorted by increasing depa
             }
 
 
-## Search flights [GET /flights/v1/search{?origin,destination,date,carrier,flight_number,departing_after,departing_before,changed_after,changed_before,weather}]
+## Search flights [GET /flights/v1/search{?origin,destination,date,codeshare,carrier,flight_number,departing_after,departing_before,changed_after,changed_before,weather}]
 
-Retrieves flight Ids that match a set of filters. Note that these results include codeshares, so you may receive more than one flight Id for effectively the same flight.
+Retrieves flight Ids that match a set of filters.
 
 + Request
 
@@ -268,6 +268,7 @@ Retrieves flight Ids that match a set of filters. Note that these results includ
         + destination: DEN (string, optional) - filters by arrival airport
         + nearby: true (string, optional) - includes nearby airports when `origin` or `destination` filters are specified
         + date: 2016-06-24 (date, optional) - filter flights that depart on this date (departure airport local time)
+        + codeshare: true (boolean, optional) - include codeshare flights - default is false
         + departing_after: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart after the specified time (inclusive)
         + departing_before: 2016-06-24T18:30:00Z (timestamp, optional) - filters flights that depart before the specified time(exclusive)
         + changed_after: 2016-06-24T17:30:00Z (timestamp, optional) - filters flights whose delay predictions were changed after the specified time (inclusive)
