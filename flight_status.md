@@ -404,7 +404,7 @@ Indicates the latest real time status of the flight.
 ### Members
 + `Scheduled` - flight is scheduled to depart, and no other real time data has been made available by the FAA or airline.
 + `Departed` - flight has left the departure gate, but has not taken off
-+ `In Air` - flight is in the air (in many cases the wheels up time is delayed 5 minutes in accordance with FAA regulations.)
++ `Enroute` - flight is in the air (in many cases the wheels up time is delayed 5 minutes in accordance with FAA regulations.)
 + `Landed` - flight has landed
 + `Arrived` - flight has arrived at the arrival gate
 + `Expected` - the flight is expected to land at the arrival airport soon
