@@ -20,10 +20,11 @@ main = do
       char '#'
       char '#'
       space
-      r <- liftM (TypeSignature .  Text.pack) (many alphaNum)
+      r <- liftM Text.pack (many alphaNum)
       space
       char '('
-      meta <- many (noneOf ")")
+      meta <- liftM Text.pack (many (noneOf ")"))
       char ')'
-      return r
-  
+      return (case Text.null meta of
+        True  -> TypeSignature r
+        False -> TypeSignatureMeta r meta)
