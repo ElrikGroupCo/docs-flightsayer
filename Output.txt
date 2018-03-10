@@ -1,0 +1,12 @@
+stack exec runhaskell Hack.hs
+TypeSignature "FlightId"
+TypeSignature "timestamp"
+TypeSignature "AirportInfo"
+TypeSignature "DelayCause"
+TypeSignature "HistoricalDelayValue"
+TypeSignature "WeatherForecast"
+TypeSignature "RealtimeStatusSource"
+TypeSignature "FlightStatusText"
+TypeSignature "StatusType"
+TypeSignature "FlightsayerRisk"
+TypeSignature "FlightStatus"
