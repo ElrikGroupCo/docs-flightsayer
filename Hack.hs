@@ -38,4 +38,7 @@ main = do
         False -> TypeSignatureMeta r meta)
 
     typeDescription = do
-     return $ TypeDescription "Alw"
+     description <- many (noneOf "#")
+     (case null description of
+       True -> mzero
+       False -> liftM TypeDescription (pure (Text.pack description)))
