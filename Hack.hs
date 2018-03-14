@@ -1,7 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
--- {-# LANGUAGE LiberalTypes #-}
-
 import Turtle
 import Turtle.Pattern
 
@@ -13,17 +10,23 @@ import Control.Monad
 
 data Token = TypeSignature Text
            | TypeDescription Text
+           | TypeAttribute Text
+           | TypeRequest Text
+           | TypeResponse Text
            | TypeSignatureMeta Text Text deriving Show
 
 -- zipWith (a -> b -> c) [a] [b] [c]
 
 main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
-  rs <- mapM (\line -> return $ zipWith ($) [match typeSignature,match typeDescription] (repeat line) )
+  rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
   mapM print (concatMap id rs)
   where
-    typeSignature,typeDescription :: Pattern Token
+    programs = fmap match [typeSignature
+                          ,typeDescription
+                          ,typeRequest]
+    typeSignature,typeDescription,typeRequest :: Pattern Token
     typeSignature = do
       char '#'
       char '#'
@@ -36,6 +39,15 @@ main = do
       return (case Text.null meta of
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
+
+    typeRequest  = do
+      char '+'
+      space
+      r <- char 'R'
+      e <- char 'e'
+      q <- char 'q'
+      uestBody <- many alphaNum
+      return $ TypeRequest (Text.pack $ [r,e,q]++uestBody)
 
     typeDescription = do
      description <- many (noneOf "#")
