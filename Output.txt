@@ -183,6 +183,7 @@ TypeRequestHeader
 TypeParamHeader
 TypeParamSymbol "flight_id" " WN55DALHOU1608300100 (FlightId, required)" False
 TypeDescription "            Token: thisisasampletoken"
+TypeAttributeHeader
 TypeParamSymbolII "count (number, required) " " number alternates returned" True
 TypeParamSymbolII "flights (array[FlightStatus], required) " " array of alternate flights. Flight status includes weather information, but not inbound flight or historical performance. Contact @diana to change what data is included." True
 TypeBodyHeader
@@ -213,6 +214,7 @@ TypeParamSymbolII "flight_number: 709 (number, optional) " " filters by flight n
 TypeParamSymbolII "weather: true (boolean, optional) " " if true, includes weather data in with flight info" False
 TypeDescription "            Token: thisisasampletoken"
 TypeResponseHeader (Right 200)
+TypeAttributeHeader
 TypeParamSymbolII "count (number, required) " " number of flights matching the filter" True
 TypeParamSymbolII "next (string) " " url for next page of search results" False
 TypeParamSymbolII "previous (string) " " url for previous page of search results" False
@@ -277,6 +279,7 @@ TypeSignatureMeta "timestamp" "string"
 TypeDescription "A timestamp in ISO-8601 format, for example: `2016-09-09T15:00:00Z` or `2016-08-25T20:35:00-00:05`. Note that the time zone offset is included for timestamps representing an arrival or departure time, and the offset is the local time at the corresponding origin or destination airport."
 TypeSignatureMeta "AirportInfo" "object"
 TypeDescription "Information about an airport"
+TypeAttributeHeader
 TypeParamSymbolII "iata (string, required) " " IATA airport code" True
 TypeParamSymbolII "city (string, required) " " airport city name" True
 TypeParamSymbolII "name (string, required) " " full airport name" True
@@ -298,6 +301,7 @@ TypeDescription "- `10002` - cancellation (flight was cancelled on this day)"
 TypeDescription "- `10003` - diversion (flight was diverted on this day)"
 TypeSignatureMeta "WeatherForecast" "object"
 TypeDescription "Weather forecast information at origin or destination airport. This forecast corresponds to the weather predicted at the departure or arrival time, respectively."
+TypeAttributeHeader
 TypeParamSymbolII "icon (enum[string], optional) " " A summary of weather conditions, suitable for selecting in icon for display. If defined, this property will have one of the following values: `clear-day`, `clear-night`, `rain`, `snow`, `sleet`, `wind`, `fog`, `cloudy`, `partly-cloudy-day`, or `partly-cloudy-night`. Note that additional values such as thunderstorm or tornado may be defined in the future." False
 TypeParamSymbolII "summary (string, required) " " summary of weather conditions" True
 TypeParamSymbolII "temperature(number or array[number], required) " " temperature during an hour (for hourly forecast) or array representing low and high temperatures for the day. Note that within about 48 hours out, hourly weather is available and the temperature will be a single value. Beyond this time window, only daily weather is available and the temperature is represented as an array of low/high values. Use the `hourly` field to determine what kind of temperature this is." True

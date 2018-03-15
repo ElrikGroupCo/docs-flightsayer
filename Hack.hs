@@ -11,7 +11,7 @@ import Control.Monad
 
 data Token = TypeSignature Text
            | TypeDescription Text
-           | TypeAttribute Text
+           | TypeAttributeHeader
            | TypeRequestHeader
            | TypeResponseHeader (Either Int Int)
            | TypeParamHeader
@@ -35,6 +35,7 @@ main = do
                           ,typeParamSymbol
                           ,typeParamHeader
                           ,typeBodyHeader
+                          ,typeAttributeHeader
                           ,typeRequestHeader
                           ,typeResponseHeader
                           ,typeSignature
@@ -54,6 +55,7 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
+    typeAttributeHeader= plusPrefix >> text (Text.pack "Attributes") >> pure TypeAttributeHeader
     typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
     typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
 
