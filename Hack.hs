@@ -26,7 +26,7 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print (filter (not . null) $ (concatMap id rs))
+  mapM print (concatMap ((:[]) . concat) rs)
   where
     programs = fmap match [typeParamSymbolII
                           ,typeParamSymbol
