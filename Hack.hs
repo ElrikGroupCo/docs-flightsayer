@@ -23,9 +23,11 @@ main = do
              (Text.lines rawLines)
   mapM print (concatMap id rs)
   where
-    programs = fmap match [typeSignature
-                          ,typeDescription
-                          ,typeRequest]
+    programs = fmap match [typeResponse
+                          ,typeRequest
+                          ,typeSignature
+                          ,typeDescription]
+
     typeSignature,typeDescription,typeRequest :: Pattern Token
     typeSignature = do
       char '#'
@@ -46,8 +48,18 @@ main = do
       r <- char 'R'
       e <- char 'e'
       q <- char 'q'
-      uestBody <- many alphaNum
-      return $ TypeRequest (Text.pack $ [r,e,q]++uestBody)
+      uestBody <- many anyChar
+      liftM TypeRequest (pure $ Text.pack $ [r,e,q]  ++ uestBody)
+
+    typeResponse = do
+      skip spaces
+      char '+'
+      space
+      r <- char 'R'
+      e <- char 'e'
+      s <- char 's'
+      ponseBody <- many anyChar
+      liftM TypeResponse (pure $ Text.pack $ [r,e,s]  ++ ponseBody)
 
     typeDescription = do
      description <- many (noneOf "#")
