@@ -15,6 +15,7 @@ data Token = TypeSignature Text
            | TypeRequest Text
            | TypeResponse Text
            | TypeParamHeader
+           | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
            | TypeParamSymbolII Text Text Bool
            | TypeSignatureMeta Text Text deriving Show
@@ -30,6 +31,7 @@ main = do
     programs = fmap match [typeParamSymbolII
                           ,typeParamSymbol
                           ,typeParamHeader
+                          ,typeBodyHeader
                           ,typeResponse
                           ,typeRequest
                           ,typeSignature
@@ -68,7 +70,9 @@ main = do
       ponseBody <- many anyChar
       liftM TypeResponse (pure $ Text.pack $ [r,e,s]  ++ ponseBody)
 
-    typeParamHeader = skip spaces >> char '+' >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
+    typeParamHeader = plusPrefix >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
+    typeBodyHeader  = plusPrefix >> space >> text (Text.pack "Body") >> pure TypeBodyHeader
+    plusPrefix      = skip spaces >> char '+'
     typeParamSymbol = do
                         optional (skip spaces)
                         char '+'
