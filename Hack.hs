@@ -26,10 +26,10 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print (concatMap (Data.List.foldl' (\b a -> case length a of
+  mapM print ((Data.List.foldl' (\b a -> case length a of
                                                    0 -> b
                                                    1 -> b ++ a
-                                                   _ -> b ++ tail a ) []) rs)
+                                                   _ -> b ++ tail a ) []) (concatMap id rs))
   where
     programs = fmap match [typeParamSymbolII
                           ,typeParamSymbol
@@ -82,7 +82,7 @@ main = do
                                                  (liftM Text.pack  (many anyChar))
                                                  (pure ("required" `Data.List.isInfixOf` sseq))
     typeDescription = do
-     description <- many (noneOf "#")
+     description <- many (noneOf "#+")
      (case null description of
        True -> mzero
        False -> liftM TypeDescription (pure (Text.pack description)))
