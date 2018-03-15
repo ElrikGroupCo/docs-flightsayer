@@ -5,6 +5,7 @@ import Turtle.Pattern
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy as LText
+import qualified Data.List
 import Filesystem
 import Control.Monad
 
@@ -13,6 +14,8 @@ data Token = TypeSignature Text
            | TypeAttribute Text
            | TypeRequest Text
            | TypeResponse Text
+           | TypeParamHeader
+           | TypeParamSymbol Text Text Bool
            | TypeSignatureMeta Text Text deriving Show
 
 -- zipWith (a -> b -> c) [a] [b] [c]
@@ -21,9 +24,11 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print (concatMap id rs)
+  mapM print (filter (not . null) $ (concatMap id rs))
   where
-    programs = fmap match [typeResponse
+    programs = fmap match [typeParamSymbol
+                          ,typeParamHeader
+                          ,typeResponse
                           ,typeRequest
                           ,typeSignature
                           ,typeDescription]
@@ -61,6 +66,17 @@ main = do
       ponseBody <- many anyChar
       liftM TypeResponse (pure $ Text.pack $ [r,e,s]  ++ ponseBody)
 
+    typeParamHeader = skip spaces >> char '+' >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
+    typeParamSymbol = do
+                        skip spaces
+                        char '+'
+                        space
+                        sseq <- many (noneOf ":")
+                        char ':'
+                        sdesc <- many (noneOf "-")
+                        liftM3 TypeParamSymbol (pure (Text.pack sseq))
+                                               (pure (Text.pack sdesc))
+                                               (pure ("required" `Data.List.isInfixOf` sseq))
     typeDescription = do
      description <- many (noneOf "#")
      (case null description of
