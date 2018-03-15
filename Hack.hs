@@ -29,7 +29,7 @@ main = do
   mapM print (concatMap (Data.List.foldl' (\b a -> case length a of
                                                    0 -> b
                                                    1 -> b ++ a
-                                                   _ -> b ++ [head a] ) []) rs)
+                                                   _ -> b ++ tail a ) []) rs)
   where
     programs = fmap match [typeParamSymbolII
                           ,typeParamSymbol
