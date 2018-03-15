@@ -12,8 +12,8 @@ import Control.Monad
 data Token = TypeSignature Text
            | TypeDescription Text
            | TypeAttribute Text
-           | TypeRequest Text
-           | TypeResponse Text
+           | TypeRequestHeader
+           | TypeResponseHeader
            | TypeParamHeader
            | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
@@ -32,12 +32,12 @@ main = do
                           ,typeParamSymbol
                           ,typeParamHeader
                           ,typeBodyHeader
-                          ,typeResponse
-                          ,typeRequest
+                          ,typeRequestHeader
+                          ,typeResponseHeader
                           ,typeSignature
                           ,typeDescription]
 
-    typeSignature,typeDescription,typeRequest :: Pattern Token
+    typeSignature :: Pattern Token
     typeSignature = do
       char '#'
       char '#'
@@ -51,28 +51,12 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
-    typeRequest  = do
-      char '+'
-      space
-      r <- char 'R'
-      e <- char 'e'
-      q <- char 'q'
-      uestBody <- many anyChar
-      liftM TypeRequest (pure $ Text.pack $ [r,e,q]  ++ uestBody)
+    typeRequestHeader  = skip spaces >> char '+' >> space >> text (Text.pack "Request") >> pure TypeRequestHeader
+    typeResponseHeader = skip spaces >> char '+' >> space >> text (Text.pack "Response") >> pure TypeResponseHeader
+    typeParamHeader    = plusPrefix >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
+    typeBodyHeader     = plusPrefix >> space >> text (Text.pack "Body") >> pure TypeBodyHeader
+    plusPrefix         = optional (skip spaces) >> char '+'
 
-    typeResponse = do
-      skip spaces
-      char '+'
-      space
-      r <- char 'R'
-      e <- char 'e'
-      s <- char 's'
-      ponseBody <- many anyChar
-      liftM TypeResponse (pure $ Text.pack $ [r,e,s]  ++ ponseBody)
-
-    typeParamHeader = plusPrefix >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
-    typeBodyHeader  = plusPrefix >> space >> text (Text.pack "Body") >> pure TypeBodyHeader
-    plusPrefix      = skip spaces >> char '+'
     typeParamSymbol = do
                         optional (skip spaces)
                         char '+'
