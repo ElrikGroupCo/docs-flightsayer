@@ -16,6 +16,7 @@ data Token = TypeSignature Text
            | TypeResponse Text
            | TypeParamHeader
            | TypeParamSymbol Text Text Bool
+           | TypeParamSymbolII Text Text Bool
            | TypeSignatureMeta Text Text deriving Show
 
 -- zipWith (a -> b -> c) [a] [b] [c]
@@ -26,7 +27,8 @@ main = do
              (Text.lines rawLines)
   mapM print (filter (not . null) $ (concatMap id rs))
   where
-    programs = fmap match [typeParamSymbol
+    programs = fmap match [typeParamSymbolII
+                          ,typeParamSymbol
                           ,typeParamHeader
                           ,typeResponse
                           ,typeRequest
@@ -68,7 +70,7 @@ main = do
 
     typeParamHeader = skip spaces >> char '+' >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
     typeParamSymbol = do
-                        skip spaces
+                        optional (skip spaces)
                         char '+'
                         space
                         sseq <- many (noneOf ":")
@@ -77,6 +79,15 @@ main = do
                         liftM3 TypeParamSymbol (pure (Text.pack sseq))
                                                (pure (Text.pack sdesc))
                                                (pure ("required" `Data.List.isInfixOf` sseq))
+    typeParamSymbolII = do
+                        optional (skip spaces)
+                        char '+'
+                        space
+                        sseq <- many (noneOf "-")
+                        char '-'
+                        liftM3 TypeParamSymbolII (pure (Text.pack sseq))
+                                                 (liftM Text.pack  (many anyChar))
+                                                 (pure ("required" `Data.List.isInfixOf` sseq))
     typeDescription = do
      description <- many (noneOf "#")
      (case null description of
