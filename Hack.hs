@@ -13,7 +13,7 @@ data Token = TypeSignature Text
            | TypeDescription Text
            | TypeAttribute Text
            | TypeRequestHeader
-           | TypeResponseHeader
+           | TypeResponseHeader (Either Int Int)
            | TypeParamHeader
            | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
@@ -52,13 +52,19 @@ main = do
         False -> TypeSignatureMeta r meta)
 
     typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
-    typeResponseHeader = plusPrefix >> text (Text.pack "Response")   >> pure TypeResponseHeader
+    typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
+
+    responseParser =   (do
+                         char '4' >>  (pure $ TypeResponseHeader (Left 400)) <* many anyChar)
+                      <|>
+                       (do
+                         char '2' >>  (pure (TypeResponseHeader (Right 200)) <* many anyChar))
     typeParamHeader    = plusPrefix >> text (Text.pack "Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text (Text.pack "Body")       >> pure TypeBodyHeader
-    plusPrefix         = optional (skip spaces) >> char '+' >> space
+    plusPrefix         = optional (skip (many space)) >> char '+' >> space
 
     typeParamSymbol = do
-                        plusPrefix
+                        (skip spaces) >> char '+' >> space
                         sseq <- many (noneOf ":")
                         char ':'
                         sdesc <- many (noneOf "-")
@@ -66,7 +72,7 @@ main = do
                                                (pure (Text.pack sdesc))
                                                (pure ("required" `Data.List.isInfixOf` sseq))
     typeParamSymbolII = do
-                        plusPrefix
+                        (skip spaces) >> char '+' >> space
                         sseq <- many (noneOf "-")
                         char '-'
                         liftM3 TypeParamSymbolII (pure (Text.pack sseq))
