@@ -26,7 +26,10 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print (concatMap ((:[]) . concat) rs)
+  mapM print (concatMap (Data.List.foldl' (\b a -> case length a of
+                                                   0 -> b
+                                                   1 -> b ++ a
+                                                   _ -> b ++ [head a] ) []) rs)
   where
     programs = fmap match [typeParamSymbolII
                           ,typeParamSymbol
