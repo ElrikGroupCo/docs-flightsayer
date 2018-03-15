@@ -51,16 +51,14 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
-    typeRequestHeader  = skip spaces >> char '+' >> space >> text (Text.pack "Request") >> pure TypeRequestHeader
-    typeResponseHeader = skip spaces >> char '+' >> space >> text (Text.pack "Response") >> pure TypeResponseHeader
-    typeParamHeader    = plusPrefix >> space >> text (Text.pack "Parameters") >> pure TypeParamHeader
-    typeBodyHeader     = plusPrefix >> space >> text (Text.pack "Body") >> pure TypeBodyHeader
-    plusPrefix         = optional (skip spaces) >> char '+'
+    typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
+    typeResponseHeader = plusPrefix >> text (Text.pack "Response")   >> pure TypeResponseHeader
+    typeParamHeader    = plusPrefix >> text (Text.pack "Parameters") >> pure TypeParamHeader
+    typeBodyHeader     = plusPrefix >> text (Text.pack "Body")       >> pure TypeBodyHeader
+    plusPrefix         = optional (skip spaces) >> char '+' >> space
 
     typeParamSymbol = do
-                        optional (skip spaces)
-                        char '+'
-                        space
+                        plusPrefix
                         sseq <- many (noneOf ":")
                         char ':'
                         sdesc <- many (noneOf "-")
@@ -68,9 +66,7 @@ main = do
                                                (pure (Text.pack sdesc))
                                                (pure ("required" `Data.List.isInfixOf` sseq))
     typeParamSymbolII = do
-                        optional (skip spaces)
-                        char '+'
-                        space
+                        plusPrefix
                         sseq <- many (noneOf "-")
                         char '-'
                         liftM3 TypeParamSymbolII (pure (Text.pack sseq))
