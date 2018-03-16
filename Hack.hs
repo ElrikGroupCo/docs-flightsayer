@@ -14,7 +14,7 @@ data Token = TypeSignature Text
            | TypeAttributeHeader
            | TypeAttributeNameTypeRequired Text Text Bool
            | TypeRequestHeader
-           | TypeResponseHeader (Either Int Int)
+           | TypeResponseHeader (Either Text Text)
            | TypeParamHeader
            | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
@@ -80,10 +80,13 @@ main = do
     typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
 
     responseParser =   (do
-                         char '4' >>  (pure $ TypeResponseHeader (Left 400)) <* many anyChar)
+                         char '4'
+                         liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit) <* space <* many anyChar)
                       <|>
                        (do
-                         char '2' >>  (pure (TypeResponseHeader (Right 200)) <* many anyChar))
+                         char '2'
+                         liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit) <* space <* many anyChar)
+
     typeParamHeader    = plusPrefix >> text (Text.pack "Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text (Text.pack "Body")       >> pure TypeBodyHeader
     plusPrefix         = optional (skip (many space)) >> char '+' >> space

@@ -24,7 +24,7 @@ TypeParamSymbolII "weather: true (boolean, optional) " " set to true to include 
 TypeParamSymbolII "history: true (boolean, optional) " " set to true to include historical_performance data (default is false)" False
 TypeParamSymbolII "inbound: true (boolean, optional) " " set to true to include inbound flight status, if available (default is false)" False
 TypeDescription "            Token: <API token - request from info@flightsayer.com if you do not have one>"
-TypeResponseHeader (Right 200)
+TypeResponseHeader (Right "200")
 TypeAttributeHeader
 TypeParamSymbolII "flight (object, required) " " detailed information for a flight, and uniquely identifies a single leg" True
 TypeParamSymbolII "id (FlightId, required) " " flight id of this flight" True
@@ -153,7 +153,7 @@ TypeDescription "                  \"hourly\": true"
 TypeDescription "                }"
 TypeDescription "              }"
 TypeDescription "            }"
-TypeResponseHeader (Left 400)
+TypeResponseHeader (Left "404")
 TypeDescription "The most common cause of 404s is that the flight ID specified is not of the correct format, or has expired (flight has already landed)."
 TypeAttributeHeader
 TypeAttributeNameTypeRequired "status_code " "number" True
@@ -171,9 +171,9 @@ TypeParamSymbolII "weather: true (boolean, optional) " " set to true to include 
 TypeParamSymbolII "history: true (boolean, optional) " " set to true to include historical_performance data (default is false)" False
 TypeParamSymbolII "inbound: true (boolean, optional) " " set to true to include inbound flight status, if available (default is false)" False
 TypeDescription "            Token: thisisasampletoken"
-TypeResponseHeader (Right 200)
+TypeResponseHeader (Right "200")
 TypeParamSymbolII "array[FlightStatus] " " returns flight info for each specified flight." False
-TypeResponseHeader (Left 400)
+TypeResponseHeader (Left "400")
 TypeDescription "The most common cause of 404s is that the flight Ids specified are not of the correct format."
 TypeAttributeHeader
 TypeAttributeNameTypeRequired "status_code " "number" True
@@ -221,7 +221,7 @@ TypeParamSymbolII "carrier: UA (string, optional) " " filters by carrier IATA co
 TypeParamSymbolII "flight_number: 709 (number, optional) " " filters by flight number" False
 TypeParamSymbolII "weather: true (boolean, optional) " " if true, includes weather data in with flight info" False
 TypeDescription "            Token: thisisasampletoken"
-TypeResponseHeader (Right 200)
+TypeResponseHeader (Right "200")
 TypeAttributeHeader
 TypeParamSymbolII "count (number, required) " " number of flights matching the filter" True
 TypeParamSymbolII "next (string) " " url for next page of search results" False
