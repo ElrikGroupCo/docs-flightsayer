@@ -65,18 +65,20 @@ main = do
     toSpec l@(SwaggerRequestHeaderHead h tl)  TypeParamHeader                        = l
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h [r] tl
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h [r] tl
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h (r:rs) tl
+    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h [r] tl
+
 
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h (r:rs) tl
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequest h rs tl)           TypeBodyHeader                       = SwaggerRequestBodyEmpty h rs tl
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequestBodyEmpty h rs tl) (TypeDescription t)                   = SwaggerRequestBody h rs (Body t) tl
     toSpec l@(SwaggerRequestBody h rs (Body ta) tl)   (TypeDescription tb)           = SwaggerRequestBody h rs (Body (Text.append ta tb)) tl
 
     toSpec l@(SwaggerResponseHeaderHead h tl) TypeParamHeader = l
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h [r] tl
+    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h (r:rs) tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h (r:rs) tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerResponse h (r:rs) tl
