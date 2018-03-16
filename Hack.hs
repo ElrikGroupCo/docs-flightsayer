@@ -80,15 +80,15 @@ main = do
                                   (pure attrReq)
 
     typeRequestHeader  = plusPrefix >> text ("Request")    >> pure TypeRequestHeader
-    typeResponseHeader = char '+'  >> space >> text ("Response") >> space >> responseParser
+    typeResponseHeader = char '+'  >> space >> text ("Response") >> space >> responseParser <* space <* many anyChar
 
     responseParser =   (do
                          char '4'
-                         liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit) <* space <* many anyChar)
+                         liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit))
                       <|>
                        (do
                          char '2'
-                         liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit) <* space <* many anyChar)
+                         liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit))
 
     typeParamHeader    = plusPrefix >> text ("Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text ("Body")       >> pure TypeBodyHeader
