@@ -21,17 +21,18 @@ import qualified Data.List
 import Filesystem
 import Control.Monad
 
-data Token = TypeSignature Text
-           | TypeDescription Text
+data Token = TypeSignature      Text
+           | TypeDescription    Text
            | TypeAttributeHeader
            | TypeRequestHeader
            | TypeResponseHeader (Either Text Text)
            | TypeParamHeader
            | TypeBodyHeader
-           | TypeParamSymbol Text Text Bool
-           | TypeParamSymbolII Text Text Bool
+           | TypeParamSymbol    Text Text Bool
+           | TypeParamSymbolII  Text Text Bool
            | TypeParamSymbolIII Text Text Bool
-           | TypeSignatureMeta Text Text deriving (Eq,Show)
+           | TypeSignatureMeta  Text Text
+           deriving (Eq,Show)
 
 newtype Body = Body Text deriving (Show,Eq)
 data SwaggerSpec = NoSpec
@@ -61,7 +62,6 @@ main = do
     toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead  r l
     toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead r l
 
-    toSpec l@(SwaggerRequestHeaderHead h tl)  TypeParamHeader                        = l
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h [r] tl
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h [r] tl
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest h [r] tl
@@ -73,7 +73,6 @@ main = do
     toSpec l@(SwaggerRequestBodyEmpty h rs tl) (TypeDescription t)                   = SwaggerRequestBody h rs (Body t) tl
     toSpec l@(SwaggerRequestBody h rs (Body ta) tl)   (TypeDescription tb)           = SwaggerRequestBody h rs (Body (Text.append ta tb)) tl
 
-    toSpec l@(SwaggerResponseHeaderHead h tl) TypeParamHeader = l
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse h [r] tl
@@ -131,7 +130,7 @@ main = do
                                   (pure attrReq)
 
     typeRequestHeader  = plusPrefix >> text ("Request")    >> pure TypeRequestHeader
-    typeResponseHeader = char '+'  >> space >> text ("Response") >> space >> responseParser <* space <* many anyChar
+    typeResponseHeader = char '+'   >> space >> text ("Response") >> space >> responseParser <* space <* many anyChar
 
     responseParser =   (do
                          char '4'
