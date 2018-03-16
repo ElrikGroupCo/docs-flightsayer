@@ -27,11 +27,12 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print ((Data.List.foldl' (\b a -> case length a of
-                                                   0 -> b
-                                                   1 -> b ++ a
-                                                   _ -> b ++ tail a  {- using optional has it's cost -}) []) (concatMap id rs))
+  mapM print (Data.List.foldl' (<++>) [] (concatMap id rs))
   where
+    b <++> a
+      | null a    = b
+      | otherwise = b ++ a
+
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
                           ,typeParamSymbol
@@ -89,7 +90,7 @@ main = do
 
     typeParamHeader    = plusPrefix >> text (Text.pack "Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text (Text.pack "Body")       >> pure TypeBodyHeader
-    plusPrefix         = optional (skip (many space)) >> char '+' >> space
+    plusPrefix         = skip (many space) >> char '+' >> space
 
     typeParamSymbol = do
                         (skip spaces) >> char '+' >> space
@@ -110,4 +111,4 @@ main = do
      description <- many (noneOf "#+")
      (case null description of
        True -> mzero
-       False -> liftM TypeDescription (pure (Text.pack description)))
+       False -> liftM (TypeDescription . Text.pack) (pure  description))
