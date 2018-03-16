@@ -62,9 +62,9 @@ main = do
                            char '('
                            attrType <- many (noneOf ",")
                            char ','
-                           attrReq <- (text (Text.pack " required") *> pure True)
+                           attrReq <- (text (" required") *> pure True)
                                      <|>
-                                      (text (Text.pack " optional") *> pure False)
+                                      (text (" optional") *> pure False)
                                      <|>
                                       (pure False)
                            char ')'
@@ -73,8 +73,8 @@ main = do
                                   (liftM Text.pack (pure attrType))
                                   (pure attrReq)
 
-    typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
-    typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
+    typeRequestHeader  = plusPrefix >> text ("Request")    >> pure TypeRequestHeader
+    typeResponseHeader = char '+'  >> space >> text ("Response") >> space >> responseParser
 
     responseParser =   (do
                          char '4'
@@ -84,8 +84,8 @@ main = do
                          char '2'
                          liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit) <* space <* many anyChar)
 
-    typeParamHeader    = plusPrefix >> text (Text.pack "Parameters") >> pure TypeParamHeader
-    typeBodyHeader     = plusPrefix >> text (Text.pack "Body")       >> pure TypeBodyHeader
+    typeParamHeader    = plusPrefix >> text ("Parameters") >> pure TypeParamHeader
+    typeBodyHeader     = plusPrefix >> text ("Body")       >> pure TypeBodyHeader
     plusPrefix         = skip (many space) >> char '+' >> space
 
     typeParamSymbol = do
@@ -101,7 +101,7 @@ main = do
                         sseq <- many (noneOf "-")
                         char '-'
                         liftM3 TypeParamSymbolII (pure (Text.pack sseq))
-                                                 (liftM Text.pack  (many anyChar))
+                                                 (liftM Text.pack (many anyChar))
                                                  (pure ("required" `Data.List.isInfixOf` sseq))
     typeDescription = do
      description <- many (noneOf "#+")
