@@ -12,6 +12,7 @@ import Control.Monad
 data Token = TypeSignature Text
            | TypeDescription Text
            | TypeAttributeHeader
+           | TypeAttributeNameTypeRequired Text Text Bool
            | TypeRequestHeader
            | TypeResponseHeader (Either Int Int)
            | TypeParamHeader
@@ -31,7 +32,8 @@ main = do
                                                    1 -> b ++ a
                                                    _ -> b ++ tail a ) []) (concatMap id rs))
   where
-    programs = fmap match [typeParamSymbolII
+    programs = fmap match [typeAttributeNameTypeRequired
+                          ,typeParamSymbolII
                           ,typeParamSymbol
                           ,typeParamHeader
                           ,typeBodyHeader
@@ -55,7 +57,21 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
-    typeAttributeHeader= plusPrefix >> text (Text.pack "Attributes") >> pure TypeAttributeHeader
+    typeAttributeHeader= plusPrefix >> text (Text.pack "Attributes") >> (pure TypeAttributeHeader <* many  anyChar)
+
+    typeAttributeNameTypeRequired= do
+                           (skip spaces) >> char '+' >> space
+                           attrName <- many (noneOf "(")
+                           char '('
+                           attrType <- many (noneOf ",")
+                           char ','
+                           attrReq <- many (noneOf ")")
+                           char ')'
+                           liftM3 TypeAttributeNameTypeRequired
+                                  (liftM Text.pack (pure attrName))
+                                  (liftM Text.pack (pure attrType))
+                                  (liftM (Data.List.isInfixOf "required") (pure attrReq))
+
     typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
     typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
 

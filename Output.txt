@@ -25,6 +25,7 @@ TypeParamSymbolII "history: true (boolean, optional) " " set to true to include 
 TypeParamSymbolII "inbound: true (boolean, optional) " " set to true to include inbound flight status, if available (default is false)" False
 TypeDescription "            Token: <API token - request from info@flightsayer.com if you do not have one>"
 TypeResponseHeader (Right 200)
+TypeAttributeHeader
 TypeParamSymbolII "flight (object, required) " " detailed information for a flight, and uniquely identifies a single leg" True
 TypeParamSymbolII "id (FlightId, required) " " flight id of this flight" True
 TypeParamSymbolII "number (number, required) " " flight number for this flight" True
@@ -154,6 +155,9 @@ TypeDescription "              }"
 TypeDescription "            }"
 TypeResponseHeader (Left 400)
 TypeDescription "The most common cause of 404s is that the flight ID specified is not of the correct format, or has expired (flight has already landed)."
+TypeAttributeHeader
+TypeAttributeNameTypeRequired "status_code " "number" True
+TypeAttributeNameTypeRequired "error " "string" True
 TypeBodyHeader
 TypeDescription "            {"
 TypeDescription "              \"status_code\": 404,"
@@ -171,6 +175,9 @@ TypeResponseHeader (Right 200)
 TypeParamSymbolII "array[FlightStatus] " " returns flight info for each specified flight." False
 TypeResponseHeader (Left 400)
 TypeDescription "The most common cause of 404s is that the flight Ids specified are not of the correct format."
+TypeAttributeHeader
+TypeAttributeNameTypeRequired "status_code " "number" True
+TypeAttributeNameTypeRequired "error " "string" True
 TypeDescription "        "
 TypeBodyHeader
 TypeDescription "            {"
@@ -181,6 +188,7 @@ TypeDescription "Retrieves alternates flights for the specified flight, sorted b
 TypeDescription "  "
 TypeRequestHeader
 TypeParamHeader
+TypeAttributeNameTypeRequired "flight_id: WN55DALHOU1608300100 " "FlightId" True
 TypeParamSymbol "flight_id" " WN55DALHOU1608300100 (FlightId, required)" False
 TypeDescription "            Token: thisisasampletoken"
 TypeAttributeHeader
