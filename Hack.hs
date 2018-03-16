@@ -30,7 +30,7 @@ main = do
   mapM print ((Data.List.foldl' (\b a -> case length a of
                                                    0 -> b
                                                    1 -> b ++ a
-                                                   _ -> b ++ tail a ) []) (concatMap id rs))
+                                                   _ -> b ++ tail a  {- using optional has it's cost -}) []) (concatMap id rs))
   where
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
@@ -65,12 +65,16 @@ main = do
                            char '('
                            attrType <- many (noneOf ",")
                            char ','
-                           attrReq <- many (noneOf ")")
+                           attrReq <- (text (Text.pack " required") *> pure True)
+                                     <|>
+                                      (text (Text.pack " optional") *> pure False)
+                                     <|>
+                                      (pure False)
                            char ')'
                            liftM3 TypeAttributeNameTypeRequired
                                   (liftM Text.pack (pure attrName))
                                   (liftM Text.pack (pure attrType))
-                                  (liftM (Data.List.isInfixOf "required") (pure attrReq))
+                                  (pure attrReq)
 
     typeRequestHeader  = plusPrefix >> text (Text.pack "Request")    >> pure TypeRequestHeader
     typeResponseHeader = char '+'  >> space >> text (Text.pack "Response") >> space >> responseParser
