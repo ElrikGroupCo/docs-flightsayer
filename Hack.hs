@@ -14,9 +14,8 @@ import qualified Pipes.Prelude as Pipes
 -- zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 -- concat :: Foldable t => t [a] -> [a]
 
-import qualified Data.Text as Text
+import qualified Data.Text    as Text
 import qualified Data.Text.IO as Text
-import qualified Data.Text.Lazy as LText
 import qualified Data.List
 
 import Filesystem
@@ -32,15 +31,51 @@ data Token = TypeSignature Text
            | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
            | TypeParamSymbolII Text Text Bool
-           | TypeSignatureMeta Text Text deriving Show
+           | TypeSignatureMeta Text Text deriving (Eq,Show)
+
+data SwaggerSpec = NoSpec
+                 | SwaggerRequestHeaderHead Token SwaggerSpec
+                 | SwaggerResponseHeaderHead Token SwaggerSpec
+                 | SwaggerRequest  Token [Token] SwaggerSpec
+                 | SwaggerResponse Token [Token] SwaggerSpec
+                 deriving (Eq,Show)
 
 main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- (concatMap concat)
         <$>
         mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines)
-  runEffect $ Pipes.for (each rs) $ \token -> lift (putStrLn (show token))
+
+  swaggerSpec <- Pipes.foldM (\x a -> return $ toSpec x a)
+                             (pure NoSpec)
+                             return
+                             (each rs)
+
+  print swaggerSpec
+
   where
+    NoSpec <++> a@(SwaggerRequestHeaderHead t tl) = a
+    a <++> NoSpec                                 = a
+
+    toSpec l                                  TypeRequestHeader       = SwaggerRequestHeaderHead  TypeRequestHeader l
+    toSpec l                                  r@(TypeResponseHeader _)= SwaggerResponseHeaderHead r                 l
+
+    toSpec l@(SwaggerRequestHeaderHead h tl)  TypeParamHeader           = l
+    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)= SwaggerRequest h [r] tl
+    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)= SwaggerRequest h [r] tl
+
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolII _ _ _)= SwaggerRequest h (r:rs) tl
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbol   _ _ _)= SwaggerRequest h (r:rs) tl
+
+    toSpec l@(SwaggerResponseHeaderHead h tl) TypeParamHeader = l
+    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)= SwaggerResponse h [r] tl
+    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)= SwaggerResponse h [r] tl
+    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolII _ _ _)= SwaggerResponse h (r:rs) tl
+    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbol   _ _ _)= SwaggerResponse h (r:rs) tl
+
+
+    toSpec b      _                                                     = b
+
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
                           ,typeParamSymbol
