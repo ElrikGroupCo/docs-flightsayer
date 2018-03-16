@@ -27,12 +27,8 @@ main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
   rs <- mapM (return . zipWith ($) programs . repeat)
              (Text.lines rawLines)
-  mapM print (Data.List.foldl' (<++>) [] (concatMap id rs))
+  mapM print (concatMap concat rs)
   where
-    b <++> a
-      | null a    = b
-      | otherwise = b ++ a
-
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
                           ,typeParamSymbol
