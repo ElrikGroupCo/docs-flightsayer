@@ -9,6 +9,10 @@ import Pipes
 -- https://wiki.haskell.org/ListT_done_right
 -- https://github.com/ElrikGroupCo/docs-flightsayer/blob/hack/Output.txt
 
+-- concatMap :: Foldable t => (a -> [b]) -> t a -> [b]
+-- zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+-- concat :: Foldable t => t [a] -> [a]
+
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy as LText
@@ -60,7 +64,7 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
-    typeAttributeHeader= plusPrefix >> text (Text.pack "Attributes") >> (pure TypeAttributeHeader <* many  anyChar)
+    typeAttributeHeader= plusPrefix >> text ("Attributes") >> (pure TypeAttributeHeader) <* many  anyChar
 
     typeAttributeNameTypeRequired= do
                            (skip spaces) >> char '+' >> space
