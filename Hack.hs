@@ -24,13 +24,13 @@ import Control.Monad
 data Token = TypeSignature Text
            | TypeDescription Text
            | TypeAttributeHeader
-           | TypeAttributeNameTypeRequired Text Text Bool
            | TypeRequestHeader
            | TypeResponseHeader (Either Text Text)
            | TypeParamHeader
            | TypeBodyHeader
            | TypeParamSymbol Text Text Bool
            | TypeParamSymbolII Text Text Bool
+           | TypeParamSymbolIII Text Text Bool
            | TypeSignatureMeta Text Text deriving (Eq,Show)
 
 newtype Body = Body Text deriving (Show,Eq)
@@ -55,7 +55,6 @@ main = do
                              (pure NoSpec)
                              return
                              (each rs)
-
   print swaggerSpec
 
   where
@@ -65,32 +64,29 @@ main = do
     toSpec l@(SwaggerRequestHeaderHead h tl)  TypeParamHeader                        = l
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h [r] tl
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h [r] tl
-    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h [r] tl
-
+    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest h [r] tl
 
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h (r:rs) tl
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequest h rs tl)           TypeBodyHeader                       = SwaggerRequestBodyEmpty h rs tl
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _) = SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequestBodyEmpty h rs tl) (TypeDescription t)                   = SwaggerRequestBody h rs (Body t) tl
     toSpec l@(SwaggerRequestBody h rs (Body ta) tl)   (TypeDescription tb)           = SwaggerRequestBody h rs (Body (Text.append ta tb)) tl
 
     toSpec l@(SwaggerResponseHeaderHead h tl) TypeParamHeader = l
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h [r] tl
-    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerResponse h [r] tl
+    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse h [r] tl
+
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h (r:rs) tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h (r:rs) tl
-    toSpec l@(SwaggerResponse h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerResponse h (r:rs) tl
+    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse h (r:rs) tl
     toSpec l@(SwaggerResponse h rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty h rs tl
-    toSpec l@(SwaggerResponseBodyEmpty h rs tl) (TypeDescription t)                  = SwaggerResponseBody h rs (Body t) tl
+    toSpec l@(SwaggerResponseBodyEmpty h rs tl)        (TypeDescription t)           = SwaggerResponseBody h rs (Body t) tl
     toSpec l@(SwaggerResponseBody h rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody h rs (Body (Text.append ta tb)) tl
+    toSpec b      _                                                                  = b
 
-
-
-    toSpec b      _                                                     = b
-
-    programs = fmap match [typeAttributeNameTypeRequired
+    programs = fmap match [typeParamSymbolIII
                           ,typeParamSymbolII
                           ,typeParamSymbol
                           ,typeParamHeader
@@ -117,7 +113,7 @@ main = do
 
     typeAttributeHeader= plusPrefix >> text ("Attributes") >> (pure TypeAttributeHeader) <* many  anyChar
 
-    typeAttributeNameTypeRequired= do
+    typeParamSymbolIII= do
                            (skip spaces) >> char '+' >> space
                            attrName <- many (noneOf "(")
                            char '('
@@ -129,7 +125,7 @@ main = do
                                      <|>
                                       (pure False)
                            char ')'
-                           liftM3 TypeAttributeNameTypeRequired
+                           liftM3 TypeParamSymbolIII
                                   (liftM Text.pack (pure attrName))
                                   (liftM Text.pack (pure attrType))
                                   (pure attrReq)
