@@ -32,6 +32,7 @@ data Token = TypeSignature      Text
            | TypeParamSymbolII  Text Text Bool
            | TypeParamSymbolIII Text Text Bool
            | TypeSignatureMeta  Text Text
+           | TypeRoute          Text
            deriving (Eq,Show)
 
 newtype Body = Body Text deriving (Show,Eq)
@@ -44,6 +45,7 @@ data SwaggerSpec = NoSpec
                  | SwaggerRequestBody Token [Token] Body SwaggerSpec
                  | SwaggerResponseBodyEmpty Token [Token] SwaggerSpec
                  | SwaggerResponseBody Token [Token] Body SwaggerSpec
+                 | SwaggerRoute Token SwaggerSpec
                  deriving (Eq,Show)
 
 main = do
@@ -61,6 +63,7 @@ main = do
   print swaggerSpec
 
   where
+    toSpec l                                  r@(TypeRoute _)                        = SwaggerRoute r l
     toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead  r l
     toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead r l
 
@@ -87,7 +90,8 @@ main = do
     toSpec l@(SwaggerResponseBody h rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody h rs (Body (Text.append ta tb)) tl
     toSpec b      _                                                                  = b
 
-    programs = fmap match [typeParamSymbolIII
+    programs = fmap match [typeRoute
+                          ,typeParamSymbolIII
                           ,typeParamSymbolII
                           ,typeParamSymbol
                           ,typeParamHeader
@@ -166,3 +170,8 @@ main = do
      (case null description of
        True -> mzero
        False -> liftM (TypeDescription . Text.pack) (pure  description))
+    typeRoute = do
+      skip spaces
+      char '*'
+      skip (many space)
+      liftM (TypeRoute . Text.pack) (many anyChar)
