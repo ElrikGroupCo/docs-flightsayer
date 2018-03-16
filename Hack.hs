@@ -1,11 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Turtle
 import Turtle.Pattern
+import Pipes
+
+-- notes
+-- https://hackage.haskell.org/package/pipes-4.3.9/docs/Pipes-Prelude.html
+-- http://www.scs.stanford.edu/11au-cs240h/notes/performance.html#(32)
+-- https://wiki.haskell.org/ListT_done_right
+-- https://github.com/ElrikGroupCo/docs-flightsayer/blob/hack/Output.txt
 
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy as LText
 import qualified Data.List
+
 import Filesystem
 import Control.Monad
 
@@ -20,8 +28,6 @@ data Token = TypeSignature Text
            | TypeParamSymbol Text Text Bool
            | TypeParamSymbolII Text Text Bool
            | TypeSignatureMeta Text Text deriving Show
-
--- zipWith (a -> b -> c) [a] [b] [c]
 
 main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
