@@ -38,6 +38,10 @@ data SwaggerSpec = NoSpec
                  | SwaggerResponseHeaderHead Token SwaggerSpec
                  | SwaggerRequest  Token [Token] SwaggerSpec
                  | SwaggerResponse Token [Token] SwaggerSpec
+                 | SwaggerRequestBodyEmpty Token [Token] SwaggerSpec
+                 | SwaggerRequestBody Token [Token] Text SwaggerSpec
+                 | SwaggerResponseBodyEmpty Token [Token] SwaggerSpec
+                 | SwaggerResponseBody Token [Token] Text SwaggerSpec
                  deriving (Eq,Show)
 
 main = do
@@ -63,15 +67,21 @@ main = do
     toSpec l@(SwaggerRequestHeaderHead h tl)  TypeParamHeader           = l
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)= SwaggerRequest h [r] tl
     toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)= SwaggerRequest h [r] tl
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerRequest h (r:rs) tl
 
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolII _ _ _)= SwaggerRequest h (r:rs) tl
     toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbol   _ _ _)= SwaggerRequest h (r:rs) tl
+    toSpec l@(SwaggerRequest h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerRequest h (r:rs) tl
+    toSpec l@(SwaggerRequest h rs tl)        TypeBodyHeader                         = SwaggerRequestBodyEmpty h rs tl
+
 
     toSpec l@(SwaggerResponseHeaderHead h tl) TypeParamHeader = l
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)= SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)= SwaggerResponse h [r] tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolII _ _ _)= SwaggerResponse h (r:rs) tl
     toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbol   _ _ _)= SwaggerResponse h (r:rs) tl
+    toSpec l@(SwaggerResponse h rs tl)        r@(TypeAttributeNameTypeRequired _ _ _)= SwaggerResponse h (r:rs) tl
+    toSpec l@(SwaggerResponse h rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty h rs tl
 
 
     toSpec b      _                                                     = b
