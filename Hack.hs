@@ -35,9 +35,11 @@ data Token = TypeSignature Text
 
 main = do
   rawLines <- readTextFile . (</> "status.md") =<< pwd
-  rs <- mapM (return . zipWith ($) programs . repeat)
-             (Text.lines rawLines)
-  mapM print (concatMap concat rs)
+  rs <- (concatMap concat)
+        <$>
+        mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines)
+
+  mapM print rs
   where
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
