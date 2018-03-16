@@ -2,6 +2,7 @@
 import Turtle
 import Turtle.Pattern
 import Pipes
+import qualified Pipes.Prelude as Pipes
 
 -- notes
 -- https://hackage.haskell.org/package/pipes-4.3.9/docs/Pipes-Prelude.html
@@ -38,8 +39,7 @@ main = do
   rs <- (concatMap concat)
         <$>
         mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines)
-
-  mapM print rs
+  runEffect $ Pipes.for (each rs) $ \token -> lift (putStrLn (show token))
   where
     programs = fmap match [typeAttributeNameTypeRequired
                           ,typeParamSymbolII
