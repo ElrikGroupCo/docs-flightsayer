@@ -47,7 +47,9 @@ data SwaggerSpec = NoSpec
                  deriving (Eq,Show)
 
 main = do
-  rawLines <- readTextFile . (</> "status.md") =<< pwd
+  rawLines <- liftM2 (<>)
+                     (readTextFile . (</> "status.md") =<< pwd)
+                     (readTextFile . (</> "flight_subscriptions.md") =<< pwd)
   rs <- (concatMap concat)
         <$>
         mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines)
