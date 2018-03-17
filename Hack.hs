@@ -56,7 +56,8 @@ data SwaggerSpec = NoSpec
                  | SwaggerRoute Text SwaggerSpec
                  | SwaggerFormat SwaggerSpec
                  | SwaggerDataStructureHeader SwaggerSpec
-                 | SwaggerDataStructure Text Type SwaggerSpec
+                 | SwaggerDataStructure [SwaggerSpec] SwaggerSpec
+                 | SwaggerDataStructureEntity Text Text
                  | SwaggerEntity Text SwaggerSpec
                  | SwaggerCollectionEntity Text
                  | SwaggerMemberCollection [SwaggerSpec] SwaggerSpec
@@ -66,29 +67,35 @@ main = do
   rawLines <- liftM2 (<>)
                      (readTextFile . (</> "status.md") =<< pwd)
                      (readTextFile . (</> "flight_subscriptions.md") =<< pwd)
-  swaggerSpec <-
-              (Data.List.foldl' toSpec NoSpec)
+  swaggerModel <-
+              id
               <$>
               ((concatMap concat)
                <$>
                mapM (return . zipWith ($) programs . repeat)
                     (Text.lines rawLines))
+  mapM print swaggerModel
+  swaggerSpec <- liftM (Data.List.foldl' toSpec NoSpec) (pure swaggerModel)
 
   print swaggerSpec
 
   where
-    toSpec l                                  TypeDataStructureHeader                = SwaggerDataStructureHeader l
-    toSpec l                                  TypeFormatHeader                       = SwaggerFormat              l
-    toSpec l                                  (TypeRoute t)                          = SwaggerRoute             t l
-    toSpec l                                  TypeRequestHeader                      = SwaggerRequestHeaderHead   l
-    toSpec l                                  (TypeResponseHeader _)                 = SwaggerResponseHeaderHead  l
-    toSpec l                                  TypeAttributeHeader                    = SwaggerAttributeHeader     l
-    toSpec l                                  TypeMemberHeader                       = SwaggerMemberCollection [] l
 
-
-    toSpec (SwaggerDataStructureHeader l) (TypeParamSymbolII  name typ _)           = SwaggerDataStructureHeader (SwaggerDataStructure name (Type typ) l)
-    toSpec (SwaggerDataStructureHeader l) (TypeParamSymbol    name typ _)           = SwaggerDataStructureHeader (SwaggerDataStructure name (Type typ) l)
-    toSpec (SwaggerDataStructureHeader l) (TypeParamSymbolIII name typ _)           = SwaggerDataStructureHeader (SwaggerDataStructure name (Type typ) l)
+    toSpec (SwaggerDataStructureHeader l) (TypeSignatureMeta name typ)             = SwaggerDataStructure
+                                                                                      [SwaggerDataStructureEntity name typ]
+                                                                                      l
+    toSpec (SwaggerDataStructure sdes l) (TypeSignatureMeta name typ)              = SwaggerDataStructure
+                                                                                      (SwaggerDataStructureEntity name typ:sdes)
+                                                                                      l
+    toSpec (SwaggerDataStructure sdes l) (TypeParamSymbolII name typ _)            = SwaggerDataStructure
+                                                                                      (SwaggerDataStructureEntity name typ:sdes)
+                                                                                      l
+    toSpec (SwaggerDataStructure sdes l) (TypeParamSymbol name typ _)              = SwaggerDataStructure
+                                                                                      (SwaggerDataStructureEntity name typ:sdes)
+                                                                                      l
+    toSpec (SwaggerDataStructure sdes l) (TypeParamSymbolIII name typ _)           = SwaggerDataStructure
+                                                                                      (SwaggerDataStructureEntity name typ:sdes)
+                                                                                      l
 
     toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest [r] tl
     toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest [r] tl
@@ -127,6 +134,15 @@ main = do
     toSpec l                                  r@(TypeParamSymbolIII t _ _)           = SwaggerEntity t l
     toSpec l                                  r@(TypeSignature t)                    = SwaggerEntity t l
     toSpec l                                  r@(TypeSignatureMeta ta tm)            = SwaggerEntity (ta <> " " <> tm) l
+
+    toSpec l                                  TypeAttributeHeader                    = SwaggerAttributeHeader     l
+    toSpec l                                  TypeMemberHeader                       = SwaggerMemberCollection [] l
+    toSpec l                                  TypeDataStructureHeader                = SwaggerDataStructureHeader l
+    toSpec l                                  TypeFormatHeader                       = SwaggerFormat              l
+    toSpec l                                  (TypeRoute t)                          = SwaggerRoute             t l
+    toSpec l                                  TypeRequestHeader                      = SwaggerRequestHeaderHead   l
+    toSpec l                                  (TypeResponseHeader _)                 = SwaggerResponseHeaderHead  l
+
     toSpec b      _                                                                  = b
 
     programs = fmap match [typeRoute
