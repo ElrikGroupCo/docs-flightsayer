@@ -30,6 +30,7 @@ data Token = TypeSignature      Text
            | TypeBodyHeader
            | TypeFormatHeader
            | TypeDataStructureHeader
+           | TypeMemberHeader
            | TypeDataStructure  Text Text
            | TypeParamSymbol    Text Text Bool
            | TypeParamSymbolII  Text Text Bool
@@ -41,18 +42,19 @@ data Token = TypeSignature      Text
 newtype Body = Body Text deriving (Show,Eq)
 
 data SwaggerSpec = NoSpec
-                 | SwaggerRequestHeaderHead Token SwaggerSpec
-                 | SwaggerResponseHeaderHead Token SwaggerSpec
-                 | SwaggerRequest  Token [Token] SwaggerSpec
-                 | SwaggerResponse Token [Token] SwaggerSpec
-                 | SwaggerRequestBodyEmpty Token [Token] SwaggerSpec
-                 | SwaggerRequestBody Token [Token] Body SwaggerSpec
-                 | SwaggerResponseBodyEmpty Token [Token] SwaggerSpec
-                 | SwaggerResponseBody Token [Token] Body SwaggerSpec
-                 | SwaggerRoute Token SwaggerSpec
-                 | SwaggerFormat Token SwaggerSpec
-                 | SwaggerDataStructureHeader Token SwaggerSpec
-                 | SwaggerEntity Body SwaggerSpec
+                 | SwaggerRequestHeaderHead SwaggerSpec
+                 | SwaggerResponseHeaderHead SwaggerSpec
+                 | SwaggerRequest  [Token] SwaggerSpec
+                 | SwaggerResponse [Token] SwaggerSpec
+                 | SwaggerRequestBodyEmpty  [Token] SwaggerSpec
+                 | SwaggerRequestBody [Token] Body SwaggerSpec
+                 | SwaggerResponseBodyEmpty [Token] SwaggerSpec
+                 | SwaggerResponseBody [Token] Body SwaggerSpec
+                 | SwaggerRoute SwaggerSpec
+                 | SwaggerFormat SwaggerSpec
+                 | SwaggerDataStructureHeader SwaggerSpec
+                 | SwaggerEntity Text SwaggerSpec
+                 | SwaggerMemberCollection [SwaggerSpec] SwaggerSpec
                  deriving (Eq,Show)
 
 main = do
@@ -70,40 +72,48 @@ main = do
   print swaggerSpec
 
   where
-    toSpec l                                  r@(TypeDataStructureHeader)            = SwaggerDataStructureHeader r l
-    toSpec l                                  r@(TypeFormatHeader)                   = SwaggerFormat r l
-    toSpec l                                  r@(TypeRoute _)                        = SwaggerRoute r l
-    toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead  r l
-    toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead r l
+    toSpec l                                  r@(TypeDataStructureHeader)            = SwaggerDataStructureHeader l
+    toSpec l                                  r@(TypeFormatHeader)                   = SwaggerFormat              l
+    toSpec l                                  r@(TypeRoute _)                        = SwaggerRoute               l
+    toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead   l
+    toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead  l
+    toSpec l                                  r@TypeMemberHeader                     = SwaggerMemberCollection [] l
 
-    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h [r] tl
-    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h [r] tl
-    toSpec l@(SwaggerRequestHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest h [r] tl
+    toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest [r] tl
+    toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest [r] tl
+    toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest [r] tl
 
-    toSpec l@(SwaggerRequestBodyEmpty h rs tl) (TypeDescription t)                   = SwaggerRequestBody h rs (Body t) tl
-    toSpec l@(SwaggerRequestBody h rs (Body ta) tl)   (TypeDescription tb)           = SwaggerRequestBody h rs (Body (Text.append ta tb)) tl
+    toSpec l@(SwaggerRequestBodyEmpty rs tl) (TypeDescription t)                   = SwaggerRequestBody rs (Body t) tl
+    toSpec l@(SwaggerRequestBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerRequestBody rs (Body (Text.append ta tb)) tl
 
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolII _ _ _)             = SwaggerRequest h (r:rs) tl
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbol   _ _ _)             = SwaggerRequest h (r:rs) tl
-    toSpec l@(SwaggerRequest h rs tl)        r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest h (r:rs) tl
-    toSpec l@(SwaggerRequest h rs tl)           TypeBodyHeader                       = SwaggerRequestBodyEmpty h rs tl
+    toSpec l@(SwaggerRequest rs tl)        r@(TypeParamSymbolII _ _ _)             = SwaggerRequest (r:rs) tl
+    toSpec l@(SwaggerRequest rs tl)        r@(TypeParamSymbol   _ _ _)             = SwaggerRequest (r:rs) tl
+    toSpec l@(SwaggerRequest rs tl)        r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest (r:rs) tl
+    toSpec l@(SwaggerRequest rs tl)           TypeBodyHeader                       = SwaggerRequestBodyEmpty rs tl
 
 
-    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h [r] tl
-    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h [r] tl
-    toSpec l@(SwaggerResponseHeaderHead h tl) r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse h [r] tl
+    toSpec l@(SwaggerResponseHeaderHead tl) r@(TypeParamSymbolII _ _ _)            = SwaggerResponse [r] tl
+    toSpec l@(SwaggerResponseHeaderHead tl) r@(TypeParamSymbol   _ _ _)            = SwaggerResponse [r] tl
+    toSpec l@(SwaggerResponseHeaderHead tl) r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse [r] tl
 
-    toSpec l@(SwaggerResponseBodyEmpty h rs tl)        (TypeDescription t)           = SwaggerResponseBody h rs (Body t) tl
-    toSpec l@(SwaggerResponseBody h rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody h rs (Body (Text.append ta tb)) tl
+    toSpec l@(SwaggerResponseBodyEmpty rs tl)        (TypeDescription t)           = SwaggerResponseBody rs (Body t) tl
+    toSpec l@(SwaggerResponseBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody rs (Body (Text.append ta tb)) tl
 
-    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolII _ _ _)            = SwaggerResponse h (r:rs) tl
-    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbol   _ _ _)            = SwaggerResponse h (r:rs) tl
-    toSpec l@(SwaggerResponse h rs tl)        r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse h (r:rs) tl
-    toSpec l@(SwaggerResponse h rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty h rs tl
+    toSpec l@(SwaggerResponse rs tl)        r@(TypeParamSymbolII _ _ _)            = SwaggerResponse (r:rs) tl
+    toSpec l@(SwaggerResponse rs tl)        r@(TypeParamSymbol   _ _ _)            = SwaggerResponse (r:rs) tl
+    toSpec l@(SwaggerResponse rs tl)        r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse (r:rs) tl
+    toSpec l@(SwaggerResponse rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty rs tl
 
-    toSpec l                                  r@(TypeParamSymbolII  t _ _)           = SwaggerEntity (Body t) l
-    toSpec l                                  r@(TypeParamSymbol    t _ _)           = SwaggerEntity (Body t) l
-    toSpec l                                  r@(TypeParamSymbolIII t _ _)           = SwaggerEntity (Body t) l
+    toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolII  t _ _)              =
+           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+    toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbol    t _ _)              =
+           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+    toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolIII t _ _)              =
+           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+
+    toSpec l                                  r@(TypeParamSymbolII  t _ _)           = SwaggerEntity t l
+    toSpec l                                  r@(TypeParamSymbol    t _ _)           = SwaggerEntity t l
+    toSpec l                                  r@(TypeParamSymbolIII t _ _)           = SwaggerEntity t l
 
     toSpec b      _                                                                  = b
 
@@ -119,7 +129,8 @@ main = do
                           ,typeSignature
                           ,typeDescription
                           ,typeFormatHeader
-                          ,typeDataStructureHeader]
+                          ,typeDataStructureHeader
+                          ,typeMemberHeader]
 
     typeSignature :: Pattern Token
     typeSignature = do
@@ -136,6 +147,7 @@ main = do
         False -> TypeSignatureMeta r meta)
 
     typeAttributeHeader= plusPrefix >> text ("Attributes") >> (pure TypeAttributeHeader) <* many  anyChar
+    typeMemberHeader   = text "### Members" >> (pure TypeMemberHeader) <* many  anyChar
     typeFormatHeader   = text "FORMAT" >> char ':' *> pure TypeFormatHeader <* many anyChar
     typeRequestHeader  = plusPrefix >> text ("Request")    >> pure TypeRequestHeader
     typeResponseHeader = char '+'   >> space >> text ("Response") >> space >> responseParser <* space <* many anyChar
