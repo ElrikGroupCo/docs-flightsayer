@@ -9,6 +9,7 @@ import qualified Pipes.Prelude as Pipes
 -- http://www.scs.stanford.edu/11au-cs240h/notes/performance.html#(32)
 -- https://wiki.haskell.org/ListT_done_right
 -- https://github.com/ElrikGroupCo/docs-flightsayer/blob/hack/Output.txt
+-- search = Cmd + G
 
 -- concatMap :: Foldable t => (a -> [b]) -> t a -> [b]
 -- zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
@@ -50,7 +51,7 @@ data SwaggerSpec = NoSpec
                  | SwaggerRequestBody [Token] Body SwaggerSpec
                  | SwaggerResponseBodyEmpty [Token] SwaggerSpec
                  | SwaggerResponseBody [Token] Body SwaggerSpec
-                 | SwaggerRoute SwaggerSpec
+                 | SwaggerRoute Text SwaggerSpec
                  | SwaggerFormat SwaggerSpec
                  | SwaggerDataStructureHeader SwaggerSpec
                  | SwaggerEntity Text SwaggerSpec
@@ -62,20 +63,19 @@ main = do
   rawLines <- liftM2 (<>)
                      (readTextFile . (</> "status.md") =<< pwd)
                      (readTextFile . (</> "flight_subscriptions.md") =<< pwd)
-  rs <- (concatMap concat)
-        <$>
-        mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines)
+  swaggerSpec <-
+              (Data.List.foldl' toSpec NoSpec)
+              <$>
+              ((concatMap concat)
+              <$>
+              mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines))
 
-  swaggerSpec <- Pipes.foldM (\x a -> return $ toSpec x a)
-                             (pure NoSpec)
-                             return
-                             (each rs)
   print swaggerSpec
 
   where
     toSpec l                                  r@(TypeDataStructureHeader)            = SwaggerDataStructureHeader l
     toSpec l                                  r@(TypeFormatHeader)                   = SwaggerFormat              l
-    toSpec l                                  r@(TypeRoute _)                        = SwaggerRoute               l
+    toSpec l                                  r@(TypeRoute t)                        = SwaggerRoute             t l
     toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead   l
     toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead  l
     toSpec l                                  r@TypeMemberHeader                     = SwaggerMemberCollection [] l
@@ -148,19 +148,15 @@ main = do
         True  -> TypeSignature r
         False -> TypeSignatureMeta r meta)
 
-    typeAttributeHeader= plusPrefix >> text ("Attributes") >> (pure TypeAttributeHeader) <* many  anyChar
-    typeMemberHeader   = text "### Members" >> (pure TypeMemberHeader) <* many  anyChar
-    typeFormatHeader   = text "FORMAT" >> char ':' *> pure TypeFormatHeader <* many anyChar
-    typeRequestHeader  = plusPrefix >> text ("Request")    >> pure TypeRequestHeader
-    typeResponseHeader = char '+'   >> space >> text ("Response") >> space >> responseParser <* space <* many anyChar
+    typeAttributeHeader= plusPrefix    *> text ("Attributes") *> pure TypeAttributeHeader
+    typeMemberHeader   = text "### Members"                   *> pure TypeMemberHeader
+    typeFormatHeader   = text "FORMAT" *> char ':'            *> pure TypeFormatHeader
+    typeRequestHeader  = plusPrefix *> text ("Request")       *> pure TypeRequestHeader
+    typeResponseHeader = char '+' *> space >> text "Response" *> space *> responseParser
 
-    responseParser =   (do
-                         char '4'
-                         liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit))
-                      <|>
-                       (do
-                         char '2'
-                         liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit))
+    responseParser =   (<|>)
+                       (char '4' *> liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit))
+                       (char '2' *> liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit))
 
     typeParamHeader    = plusPrefix >> text ("Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text ("Body")       >> pure TypeBodyHeader
