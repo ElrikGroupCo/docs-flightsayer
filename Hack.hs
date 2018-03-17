@@ -54,7 +54,7 @@ data SwaggerSpec = NoSpec
                  | SwaggerFormat SwaggerSpec
                  | SwaggerDataStructureHeader SwaggerSpec
                  | SwaggerEntity Text SwaggerSpec
-                 | SwaggerCollectionEntity Text SwaggerSpec
+                 | SwaggerCollectionEntity Text
                  | SwaggerMemberCollection [SwaggerSpec] SwaggerSpec
                  deriving (Eq,Show)
 
@@ -85,7 +85,7 @@ main = do
     toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbolIII _ _ _)            = SwaggerRequest [r] tl
 
     toSpec l@(SwaggerRequestBodyEmpty rs tl) (TypeDescription t)                   = SwaggerRequestBody rs (Body t) tl
-    toSpec l@(SwaggerRequestBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerRequestBody rs (Body (Text.append ta tb)) tl
+    toSpec l@(SwaggerRequestBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerRequestBody rs (Body (ta <> tb)) tl
 
     toSpec l@(SwaggerRequest rs tl)        r@(TypeParamSymbolII _ _ _)             = SwaggerRequest (r:rs) tl
     toSpec l@(SwaggerRequest rs tl)        r@(TypeParamSymbol   _ _ _)             = SwaggerRequest (r:rs) tl
@@ -98,7 +98,7 @@ main = do
     toSpec l@(SwaggerResponseHeaderHead tl) r@(TypeParamSymbolIII _ _ _)           = SwaggerResponse [r] tl
 
     toSpec l@(SwaggerResponseBodyEmpty rs tl)        (TypeDescription t)           = SwaggerResponseBody rs (Body t) tl
-    toSpec l@(SwaggerResponseBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody rs (Body (Text.append ta tb)) tl
+    toSpec l@(SwaggerResponseBody rs (Body ta) tl)   (TypeDescription tb)          = SwaggerResponseBody rs (Body (ta <> tb)) tl
 
     toSpec l@(SwaggerResponse rs tl)        r@(TypeParamSymbolII _ _ _)            = SwaggerResponse (r:rs) tl
     toSpec l@(SwaggerResponse rs tl)        r@(TypeParamSymbol   _ _ _)            = SwaggerResponse (r:rs) tl
@@ -106,16 +106,17 @@ main = do
     toSpec l@(SwaggerResponse rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty rs tl
 
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolII  t _ _)              =
-           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t):ms) tl
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbol    t _ _)              =
-           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t):ms) tl
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolIII t _ _)              =
-           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t):ms) tl
 
     toSpec l                                  r@(TypeParamSymbolII  t _ _)           = SwaggerEntity t l
     toSpec l                                  r@(TypeParamSymbol    t _ _)           = SwaggerEntity t l
     toSpec l                                  r@(TypeParamSymbolIII t _ _)           = SwaggerEntity t l
-
+    toSpec l                                  r@(TypeSignature t)                    = SwaggerEntity t l
+    toSpec l                                  r@(TypeSignatureMeta ta tm)            = SwaggerEntity (ta <> " " <> tm) l
     toSpec b      _                                                                  = b
 
     programs = fmap match [typeRoute
