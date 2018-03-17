@@ -90,23 +90,6 @@ main = do
       rs
       l
 
-    toSpec (SwaggerDataStructureHeader (Nothing:ses) rs l) newId@(TypeParamSymbolIII name typ _)   =
-      SwaggerDataStructureHeader
-      (Just (SwaggerDataStructureEntity name typ []):ses)
-      rs
-      l
-
-    toSpec (SwaggerDataStructureHeader (Nothing:ses) rs l) newId@(TypeParamSymbolII name typ _)   =
-      SwaggerDataStructureHeader
-      (Just (SwaggerDataStructureEntity name typ []):ses)
-      rs
-      l
-    toSpec (SwaggerDataStructureHeader (Nothing:ses) rs l) newId@(TypeParamSymbol   name typ _)   =
-      SwaggerDataStructureHeader
-      (Just (SwaggerDataStructureEntity name typ []):ses)
-      rs
-      l
-
     toSpec (SwaggerDataStructureHeader (Just entity:ses) rs l) newId@(TypeParamSymbolIV name typ)   =
       SwaggerDataStructureHeader
       [Just (SwaggerDataStructureEntity name typ [])]
