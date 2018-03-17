@@ -67,8 +67,9 @@ main = do
               (Data.List.foldl' toSpec NoSpec)
               <$>
               ((concatMap concat)
-              <$>
-              mapM (return . zipWith ($) programs . repeat) (Text.lines rawLines))
+               <$>
+               mapM (return . zipWith ($) programs . repeat)
+                    (Text.lines rawLines))
 
   print swaggerSpec
 
