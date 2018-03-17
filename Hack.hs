@@ -43,6 +43,7 @@ data Token = TypeSignature      Text
 newtype Body = Body Text deriving (Show,Eq)
 
 data SwaggerSpec = NoSpec
+                 | SwaggerAttributeHeader SwaggerSpec
                  | SwaggerRequestHeaderHead SwaggerSpec
                  | SwaggerResponseHeaderHead SwaggerSpec
                  | SwaggerRequest  [Token] SwaggerSpec
@@ -74,12 +75,13 @@ main = do
   print swaggerSpec
 
   where
-    toSpec l                                  r@(TypeDataStructureHeader)            = SwaggerDataStructureHeader l
-    toSpec l                                  r@(TypeFormatHeader)                   = SwaggerFormat              l
-    toSpec l                                  r@(TypeRoute t)                        = SwaggerRoute             t l
-    toSpec l                                  r@TypeRequestHeader                    = SwaggerRequestHeaderHead   l
-    toSpec l                                  r@(TypeResponseHeader _)               = SwaggerResponseHeaderHead  l
-    toSpec l                                  r@TypeMemberHeader                     = SwaggerMemberCollection [] l
+    toSpec l                                  TypeDataStructureHeader                = SwaggerDataStructureHeader l
+    toSpec l                                  TypeFormatHeader                       = SwaggerFormat              l
+    toSpec l                                  (TypeRoute t)                          = SwaggerRoute             t l
+    toSpec l                                  TypeRequestHeader                      = SwaggerRequestHeaderHead   l
+    toSpec l                                  (TypeResponseHeader _)                 = SwaggerResponseHeaderHead  l
+    toSpec l                                  TypeAttributeHeader                    = SwaggerAttributeHeader     l
+    toSpec l                                  TypeMemberHeader                       = SwaggerMemberCollection [] l
 
     toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbolII _ _ _)             = SwaggerRequest [r] tl
     toSpec l@(SwaggerRequestHeaderHead tl) r@(TypeParamSymbol   _ _ _)             = SwaggerRequest [r] tl
@@ -155,9 +157,9 @@ main = do
     typeRequestHeader  = plusPrefix *> text ("Request")       *> pure TypeRequestHeader
     typeResponseHeader = char '+' *> space >> text "Response" *> space *> responseParser
 
-    responseParser =   (<|>)
-                       (char '4' *> liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit))
-                       (char '2' *> liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit))
+    responseParser = (<|>)
+                     (char '4' *> liftM (TypeResponseHeader . Left . Text.pack . ('4':)) (many digit))
+                     (char '2' *> liftM (TypeResponseHeader . Right . Text.pack . ('2':)) (many digit))
 
     typeParamHeader    = plusPrefix >> text ("Parameters") >> pure TypeParamHeader
     typeBodyHeader     = plusPrefix >> text ("Body")       >> pure TypeBodyHeader
