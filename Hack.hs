@@ -54,6 +54,7 @@ data SwaggerSpec = NoSpec
                  | SwaggerFormat SwaggerSpec
                  | SwaggerDataStructureHeader SwaggerSpec
                  | SwaggerEntity Text SwaggerSpec
+                 | SwaggerCollectionEntity Text SwaggerSpec
                  | SwaggerMemberCollection [SwaggerSpec] SwaggerSpec
                  deriving (Eq,Show)
 
@@ -105,11 +106,11 @@ main = do
     toSpec l@(SwaggerResponse rs tl)        TypeBodyHeader                         = SwaggerResponseBodyEmpty rs tl
 
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolII  t _ _)              =
-           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbol    t _ _)              =
-           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
     toSpec (SwaggerMemberCollection ms tl) r@(TypeParamSymbolIII t _ _)              =
-           SwaggerMemberCollection ((SwaggerEntity t NoSpec):ms) tl
+           SwaggerMemberCollection ((SwaggerCollectionEntity t NoSpec):ms) tl
 
     toSpec l                                  r@(TypeParamSymbolII  t _ _)           = SwaggerEntity t l
     toSpec l                                  r@(TypeParamSymbol    t _ _)           = SwaggerEntity t l
